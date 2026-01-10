@@ -1,0 +1,49 @@
+<ul class="nav flex-column text-white mt-4">
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'dashboard:dashboard' %}">Dashboard</a>
+    </li>
+
+    <li class="nav-item mt-3"><strong>Masters</strong></li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'products:list' %}">Products</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'products:category_list' %}">Category</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'customers:list' %}">Customers</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'vendors:list' %}">Vendors</a>
+    </li>
+
+    <li class="nav-item mt-3"><strong>Inventory</strong></li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'inventory:stock_list' %}">Stock</a>
+    </li>
+
+    <li class="nav-item mt-3"><strong>Sales</strong></li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'sales:list' %}">Invoices</a>
+    </li>
+
+    <li class="nav-item mt-3"><strong>Purchases</strong></li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'purchases:list' %}">Purchases</a>
+    </li>
+
+    <li class="nav-item mt-3"><strong>Payments</strong></li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'payments:list' %}">Payments</a>
+    </li>
+
+    {% comment %} <li class="nav-item mt-3"><strong>Reports</strong></li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'reports:list' %}">Reports</a>
+    </li> {% endcomment %}
+
+    {% comment %} <li class="nav-item mt-3"><strong>Documents</strong></li>
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{% url 'documents:list' %}">Documents</a>
+    </li> {% endcomment %}
+</ul>

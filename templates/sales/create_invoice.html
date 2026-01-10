@@ -1,0 +1,103 @@
+{% extends "base/base.html" %}
+{% load static %}
+
+{% block content %}
+<h4>Create Invoice</h4>
+
+<form method="post">
+    {% csrf_token %}
+
+    <!-- Customer -->
+    <div class="mb-3">
+        <label>Customer</label>
+        <select name="customer" class="form-control" required>
+            {% for c in customers %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Invoice Items -->
+    <table class="table table-bordered" id="items-table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th width="120">Qty</th>
+                <th width="150">Price</th>
+                <th width="120">Tax %</th>
+                <th width="120">Total</th>
+                <th width="60"></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <button type="button" class="btn btn-sm btn-secondary" onclick="addRow()">+ Add Item</button>
+
+    <hr>
+
+    <!-- Totals -->
+    <div class="row">
+        <div class="col-md-4 ms-auto">
+            <p>Sub Total: <strong id="subTotal">0.00</strong></p>
+            <p>Tax: <strong id="taxTotal">0.00</strong></p>
+            <p>Grand Total: <strong id="grandTotal">0.00</strong></p>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Save Invoice</button>
+</form>
+
+<script>
+let products = {{ products|safe }};
+
+function addRow() {
+    let row = `
+    <tr>
+        <td>
+            <select name="product[]" class="form-control" onchange="updatePrice(this)">
+                ${products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">
+                    ${p.name} (Stock: ${p.stock})
+                </option>`).join("")}
+            </select>
+        </td>
+        <td><input type="number" step="0.01" name="quantity[]" class="form-control" value="1" oninput="calculate()"></td>
+        <td><input type="number" step="0.01" name="price[]" class="form-control" oninput="calculate()"></td>
+        <td><input type="number" step="0.01" name="tax[]" class="form-control" value="0" oninput="calculate()"></td>
+        <td class="row-total">0.00</td>
+        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove(); calculate()">×</button></td>
+    </tr>`;
+    document.querySelector("#items-table tbody").insertAdjacentHTML("beforeend", row);
+}
+
+function updatePrice(select) {
+    let price = select.selectedOptions[0].dataset.price;
+    select.closest("tr").querySelector('[name="price[]"]').value = price;
+    calculate();
+}
+
+function calculate() {
+    let sub = 0, tax = 0;
+
+    document.querySelectorAll("#items-table tbody tr").forEach(row => {
+        let qty = parseFloat(row.querySelector('[name="quantity[]"]').value) || 0;
+        let price = parseFloat(row.querySelector('[name="price[]"]').value) || 0;
+        let t = parseFloat(row.querySelector('[name="tax[]"]').value) || 0;
+
+        let total = qty * price;
+        let taxAmt = total * t / 100;
+
+        row.querySelector(".row-total").innerText = (total + taxAmt).toFixed(2);
+
+        sub += total;
+        tax += taxAmt;
+    });
+
+    document.getElementById("subTotal").innerText = sub.toFixed(2);
+    document.getElementById("taxTotal").innerText = tax.toFixed(2);
+    document.getElementById("grandTotal").innerText = (sub + tax).toFixed(2);
+}
+
+addRow();
+</script>
+{% endblock %}

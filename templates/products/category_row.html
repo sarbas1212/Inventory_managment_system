@@ -1,0 +1,17 @@
+<tr>
+    <td style="padding-left: {{ level|add:"0" }}em;">
+        {{ category.name }}
+    </td>
+    <td>{{ category.parent.name|default:"-" }}</td>
+    <td>
+        <a href="{% url 'products:category_edit' category.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
+        <form method="post" action="{% url 'products:category_delete' category.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to deactivate this category?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
+        </form>
+    </td>
+</tr>
+
+{% for child in category.children.all %}
+    {% include "products/category_row.html" with category=child level=level|add:2 %}
+{% endfor %}

@@ -1,0 +1,129 @@
+{% extends "base/base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-black text-white">
+            <h5 class="mb-0">{{ title }}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" id="purchaseForm">
+                {% csrf_token %}
+
+                <!-- Vendor & Date -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Vendor</label>
+                        {{ form.vendor|add_class:"form-select" }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Purchase Date</label>
+                        {{ form.purchase_date|add_class:"form-control" }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Discount</label>
+                        {{ form.discount_amount|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <h6 class="mt-4">Items</h6>
+                <table class="table table-bordered" id="itemsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Tax %</th>
+                            <th>Line Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="item-row">
+                            <td>
+                                <select name="items[0][product_id]" class="form-select">
+                                    {% for product in products %}
+                                        <option value="{{ product.id }}">{{ product.name }} ({{ product.sku }})</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td><input type="number" name="items[0][quantity]" class="form-control" step="0.01" value="1"></td>
+                            <td><input type="number" name="items[0][price]" class="form-control" step="0.01"></td>
+                            <td><input type="number" name="items[0][tax_percentage]" class="form-control" step="0.01" value="0"></td>
+                            <td class="line-total text-end">0</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-danger remove-item">X</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <button type="button" class="btn btn-sm btn-secondary mb-3" id="addItem">+ Add Item</button>
+
+                <!-- Grand Total -->
+                <div class="d-flex justify-content-end">
+                    <h5 class="me-3">Grand Total: ₹ <span id="grandTotal">0</span></h5>
+                </div>
+
+                <!-- Submit -->
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-success">Save Purchase</button>
+                    <a href="{% url 'purchases:list' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS for dynamic rows & totals -->
+<script>
+let itemIndex = 1;
+
+function calculateTotals() {
+    let grandTotal = 0;
+    document.querySelectorAll("#itemsTable tbody tr").forEach(row => {
+        const qty = parseFloat(row.querySelector('[name*="[quantity]"]').value) || 0;
+        const price = parseFloat(row.querySelector('[name*="[price]"]').value) || 0;
+        const tax = parseFloat(row.querySelector('[name*="[tax_percentage]"]').value) || 0;
+        const lineTotal = qty * price * (1 + tax / 100);
+        row.querySelector(".line-total").textContent = lineTotal.toFixed(2);
+        grandTotal += lineTotal;
+    });
+    document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
+}
+
+document.getElementById("itemsTable").addEventListener("input", calculateTotals);
+
+document.getElementById("addItem").addEventListener("click", () => {
+    const tbody = document.querySelector("#itemsTable tbody");
+    const firstRow = tbody.querySelector(".item-row");
+    const newRow = firstRow.cloneNode(true);
+
+    // Reset values
+    newRow.querySelectorAll("input").forEach(input => input.value = input.name.includes("tax") ? "0" : "");
+    newRow.querySelector("select").selectedIndex = 0;
+
+    // Update name attributes
+    newRow.querySelectorAll("input, select").forEach(input => {
+        input.name = input.name.replace(/\d+/, itemIndex);
+    });
+    itemIndex++;
+
+    tbody.appendChild(newRow);
+    calculateTotals();
+});
+
+document.addEventListener("click", function(e){
+    if(e.target && e.target.classList.contains("remove-item")){
+        const tbody = document.querySelector("#itemsTable tbody");
+        if(tbody.querySelectorAll("tr").length > 1){
+            e.target.closest("tr").remove();
+            calculateTotals();
+        }
+    }
+});
+</script>
+{% endblock %}
