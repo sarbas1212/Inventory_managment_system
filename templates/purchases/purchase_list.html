@@ -3,7 +3,9 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4>Purchases</h4>
-    <a href="{% url 'purchases:create' %}" class="btn btn-primary btn-sm">+ New Purchase</a>
+    <a href="{% url 'purchases:create' %}" class="btn btn-primary btn-sm">
+        + New Purchase
+    </a>
 </div>
 
 <table class="table table-bordered table-striped align-middle">
@@ -14,7 +16,7 @@
             <th>Vendor</th>
             <th class="text-end">Grand Total</th>
             <th>Status</th>
-            {% comment %} <th class="text-center" style="width: 120px;">Actions</th> {% endcomment %}
+            <th class="text-center">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -24,14 +26,31 @@
             <td>{{ p.purchase_date }}</td>
             <td>{{ p.vendor.name }}</td>
             <td class="text-end">₹ {{ p.grand_total }}</td>
-            <td>{{ p.get_status_display }}</td>
-            {% comment %} <td class="text-center">
-                <a href="{% url 'purchases:edit' p.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-            </td> {% endcomment %}
+            <td>
+                {% if p.status == "PAID" %}
+                    <span class="badge bg-success">Paid</span>
+                {% elif p.status == "PARTIAL" %}
+                    <span class="badge bg-warning text-dark">Partial</span>
+                {% else %}
+                    <span class="badge bg-danger">Unpaid</span>
+                {% endif %}
+            </td>
+            <td class="text-center">
+                {% if p.balance_amount > 0 %}
+                    <a href="{% url 'payments:add_vendor_payment' p.id %}"
+                       class="btn btn-sm btn-success">
+                        Pay
+                    </a>
+                {% else %}
+                    <span class="text-muted">—</span>
+                {% endif %}
+            </td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="6" class="text-center text-muted">No purchases found</td>
+            <td colspan="6" class="text-center text-muted">
+                No purchases found
+            </td>
         </tr>
         {% endfor %}
     </tbody>

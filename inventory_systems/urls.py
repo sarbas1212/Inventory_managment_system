@@ -35,8 +35,9 @@ urlpatterns = [
     # inventory
     path('inventory/', include('inventory.urls')),
 
+    path('invoices/', include('invoices.urls')),
     # transactions
-    path('sales/', include('sales.urls')),
+    # path('sales/', include('sales.urls')),
     path('purchases/', include('purchases.urls')),
     path('payments/', include('payments.urls')),
 ]
