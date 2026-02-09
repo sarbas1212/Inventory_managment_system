@@ -6,4 +6,5 @@ app_name = "invoices"
 urlpatterns = [
     path("", views.sales_invoice_list, name="list"),
     path("create/", views.create_invoice, name="create"),
+    path("<int:pk>/", views.sales_invoice_detail, name="detail"),
 ]

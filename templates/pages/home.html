@@ -1,0 +1,79 @@
+{% extends "pages/base.html" %}
+{% block title %}Home - InventoryPro ERP{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <h1>Smart & Professional Inventory ERP</h1>
+        <p>Effortlessly manage products, sales, purchases, and stock in a modern ERP platform.</p>
+        <a href="{% url 'pages:login' %}" class="btn btn-accent btn-lg">Get Started</a>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-box-seam"></i>
+                    <h5>Inventory Control</h5>
+                    <p>Track stock levels, monitor low inventory alerts, and manage products efficiently.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-receipt"></i>
+                    <h5>Invoices & Billing</h5>
+                    <p>Create accurate sales and purchase invoices with automatic calculations.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-graph-up"></i>
+                    <h5>Reports & Analytics</h5>
+                    <p>Get clear insights into sales trends, purchases, and stock performance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- KPI Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <h5>Total Products</h5>
+                    <p>120</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <h5>Total Sales</h5>
+                    <p>$45,000</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <h5>Total Purchases</h5>
+                    <p>$32,000</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card">
+                    <h5>Low Stock Items</h5>
+                    <p>8</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5">
+    <a href="{% url 'pages:login' %}" class="btn btn-accent btn-lg">Login & Explore ERP</a>
+</section>
+{% endblock %}

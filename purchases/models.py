@@ -4,10 +4,10 @@ from vendors.models import Vendor
 from products.models import Product
 
 class Purchase(TimeStampedModel):
-    STATUS_CHOICES = (
-        ("PAID", "Paid"),
-        ("PARTIAL", "Partial"),
-        ("UNPAID", "Unpaid"),
+    DOCUMENT_STATUS = (
+        ("DRAFT", "Draft"),
+        ("POSTED", "Posted"),
+        ("CANCELLED", "Cancelled"),
     )
 
     purchase_number = models.CharField(max_length=50, unique=True)
@@ -22,7 +22,14 @@ class Purchase(TimeStampedModel):
     paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     balance_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="UNPAID")
+    status = models.CharField(max_length=15, choices=DOCUMENT_STATUS, default="DRAFT")
+    
+    # Financial Status (denormalized)
+    payment_status = models.CharField(
+        max_length=10, 
+        choices=(("PAID", "Paid"), ("PARTIAL", "Partial"), ("UNPAID", "Unpaid")),
+        default="UNPAID"
+    )
 
 
 class PurchaseItem(models.Model):

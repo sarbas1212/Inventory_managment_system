@@ -1,0 +1,69 @@
+{% extends "base/base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-black text-white">
+            <h5 class="mb-0">
+                Customer Payment — {{ invoice.invoice_number }}
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <!-- Invoice Summary -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>Customer:</strong><br>
+                    {{ invoice.customer.name }}
+                </div>
+                <div class="col-md-4">
+                    <strong>Grand Total:</strong><br>
+                    ₹ {{ invoice.grand_total }}
+                </div>
+                <div class="col-md-4">
+                    <strong>Balance Due:</strong><br>
+                    <span class="text-danger">
+                        ₹ {{ invoice.balance_amount }}
+                    </span>
+                </div>
+            </div>
+
+            <hr>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>Amount</label>
+                        {{ form.amount|add_class:"form-control" }}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Method</label>
+                        {{ form.payment_method|add_class:"form-select" }}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Date</label>
+                        {{ form.payment_date|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label>Transaction ID</label>
+                    {{ form.transaction_id|add_class:"form-control" }}
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    <button class="btn btn-success me-2">Save Payment</button>
+                    <a href="{% url 'invoices:list' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

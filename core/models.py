@@ -1,7 +1,5 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from django.conf import settings
 
 
 class TimeStampedModel(models.Model):
@@ -21,7 +19,7 @@ class SoftDeleteModel(models.Model):
 
 class AuditModel(models.Model):
     created_by = models.ForeignKey(
-        User, null=True, blank=True,
+        settings.AUTH_USER_MODEL, null=True, blank=True,
         on_delete=models.SET_NULL,
         related_name="created_%(class)s"
     )

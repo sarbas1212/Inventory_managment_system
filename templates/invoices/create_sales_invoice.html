@@ -1,103 +1,267 @@
 {% extends "base/base.html" %}
-{% load static %}
-
 {% block content %}
-<h4>Create Invoice</h4>
-
-<form method="post">
-    {% csrf_token %}
-
-    <!-- Customer -->
-    <div class="mb-3">
-        <label>Customer</label>
-        <select name="customer" class="form-control" required>
-            {% for c in customers %}
-                <option value="{{ c.id }}">{{ c.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <!-- Invoice Items -->
-    <table class="table table-bordered" id="items-table">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th width="120">Qty</th>
-                <th width="150">Price</th>
-                <th width="120">Tax %</th>
-                <th width="120">Total</th>
-                <th width="60"></th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-
-    <button type="button" class="btn btn-sm btn-secondary" onclick="addRow()">+ Add Item</button>
-
-    <hr>
-
-    <!-- Totals -->
-    <div class="row">
-        <div class="col-md-4 ms-auto">
-            <p>Sub Total: <strong id="subTotal">0.00</strong></p>
-            <p>Tax: <strong id="taxTotal">0.00</strong></p>
-            <p>Grand Total: <strong id="grandTotal">0.00</strong></p>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">New Sales Invoice</h3>
+            <p class="text-secondary small mb-0">Generate a new invoice for customer sales.</p>
         </div>
+        <a href="{% url 'invoices:list' %}" class="btn btn-outline-secondary px-4">
+            <i class="bi bi-arrow-left me-1"></i> Cancel
+        </a>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Save Invoice</button>
-</form>
+    <form method="POST" id="salesInvoiceForm" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="row g-4">
+            <!-- Left Column: Header Info -->
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Customer</label>
+                                <select name="customer" class="form-select border-0 bg-light" required>
+                                    <option value="">Select Customer</option>
+                                    {% for c in customers %}
+                                    <option value="{{ c.id }}">{{ c.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary small">Invoice Date</label>
+                                <input type="date" name="invoice_date" class="form-control border-0 bg-light"
+                                    value="{{ today }}" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Section -->
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h6 class="fw-bold mb-0">Items & Products</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="salesItemsTable">
+                                <thead class="bg-light text-secondary small text-uppercase">
+                                    <tr>
+                                        <th class="ps-4" style="width: 40%;">Product</th>
+                                        <th style="width: 12%;">Qty</th>
+                                        <th style="width: 15%;">Selling Price</th>
+                                        <th style="width: 10%;">Tax %</th>
+                                        <th class="text-end" style="width: 15%;">Total</th>
+                                        <th class="text-center" style="width: 8%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic Rows Go Here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-3 border-top bg-light bg-opacity-10">
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3"
+                                onclick="addRow()">
+                                <i class="bi bi-plus-lg me-1"></i> Add Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totals Section -->
+            <div class="col-lg-12">
+                <div class="row justify-content-end">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm p-4">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-secondary">Sub Total</span>
+                                <span class="fw-bold" id="displaySubTotal">₹ 0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="text-secondary">Tax Amount</span>
+                                <span class="fw-bold" id="displayTaxTotal">₹ 0.00</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small fw-bold">Discount Amount</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light border-0">₹</span>
+                                    <input type="number" step="0.01" name="discount_amount" id="discountInput"
+                                        class="form-control bg-light border-0 text-end fw-bold" value="0.00"
+                                        oninput="calculateTotals()">
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <span class="h5 fw-bold text-primary mb-0">Grand Total</span>
+                                <span class="h5 fw-bold text-primary mb-0" id="displayGrandTotal">₹ 0.00</span>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i> Save Sales Invoice
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 
 <script>
-let products = {{ products|safe }};
+    const products = {{ products| safe }};
+    let rowCount = 0;
 
-function addRow() {
-    let row = `
-    <tr>
-        <td>
-            <select name="product[]" class="form-control" onchange="updatePrice(this)">
-                ${products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}">
-                    ${p.name} (Stock: ${p.stock})
-                </option>`).join("")}
-            </select>
-        </td>
-        <td><input type="number" step="0.01" name="quantity[]" class="form-control" value="1" oninput="calculate()"></td>
-        <td><input type="number" step="0.01" name="price[]" class="form-control" oninput="calculate()"></td>
-        <td><input type="number" step="0.01" name="tax[]" class="form-control" value="0" oninput="calculate()"></td>
-        <td class="row-total">0.00</td>
-        <td><button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove(); calculate()">×</button></td>
-    </tr>`;
-    document.querySelector("#items-table tbody").insertAdjacentHTML("beforeend", row);
-}
+    function addRow() {
+        const tbody = document.querySelector("#salesItemsTable tbody");
+        const tr = document.createElement("tr");
+        tr.className = "item-row";
+        tr.innerHTML = `
+            <td class="ps-4">
+                <select name="items[${rowCount}][product_id]" class="form-select border-0 bg-light-soft select-product" required onchange="handleProductChange(this)">
+                    <option value="">Select a Product</option>
+                    ${products.map(p => `
+                        <option value="${p.id}" data-price="${p.price}" data-stock="${p.stock}" data-sku="${p.sku}">
+                            ${p.name} (Stock: ${p.stock})
+                        </option>
+                    `).join('')}
+                </select>
+                <div class="small text-muted mt-1 px-1 product-info"></div>
+            </td>
+            <td>
+                <input type="number" step="0.01" min="0.01" name="items[${rowCount}][quantity]" class="form-control border-0 bg-light-soft text-center input-qty" value="1.00" required oninput="calculateTotals()">
+            </td>
+            <td>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-transparent border-0 opacity-50">₹</span>
+                    <input type="number" step="0.01" name="items[${rowCount}][price]" class="form-control border-0 bg-light-soft text-end input-price" value="0.00" required oninput="calculateTotals()">
+                </div>
+            </td>
+            <td>
+                <input type="number" step="0.01" name="items[${rowCount}][tax_percentage]" class="form-control border-0 bg-light-soft text-center input-tax" value="0.00" required oninput="calculateTotals()">
+            </td>
+            <td class="text-end fw-bold">
+                <span class="line-total-display">₹ 0.00</span>
+            </td>
+            <td class="text-center">
+                <button type="button" class="btn btn-link text-danger p-0" onclick="removeRow(this)">
+                    <i class="bi bi-trash3"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+        rowCount++;
+        calculateTotals();
+    }
 
-function updatePrice(select) {
-    let price = select.selectedOptions[0].dataset.price;
-    select.closest("tr").querySelector('[name="price[]"]').value = price;
-    calculate();
-}
+    function removeRow(btn) {
+        btn.closest("tr").remove();
+        reindexRows();
+        calculateTotals();
+    }
 
-function calculate() {
-    let sub = 0, tax = 0;
+    function reindexRows() {
+        document.querySelectorAll("#salesItemsTable tbody tr").forEach((row, index) => {
+            row.querySelectorAll("[name]").forEach(input => {
+                const name = input.getAttribute("name");
+                if (name && name.includes("items[")) {
+                    input.setAttribute("name", name.replace(/items\[\d+\]/, `items[${index}]`));
+                }
+            });
+        });
+        rowCount = document.querySelectorAll("#salesItemsTable tbody tr").length;
+    }
 
-    document.querySelectorAll("#items-table tbody tr").forEach(row => {
-        let qty = parseFloat(row.querySelector('[name="quantity[]"]').value) || 0;
-        let price = parseFloat(row.querySelector('[name="price[]"]').value) || 0;
-        let t = parseFloat(row.querySelector('[name="tax[]"]').value) || 0;
+    function handleProductChange(select) {
+        const option = select.selectedOptions[0];
+        const row = select.closest("tr");
+        const priceInput = row.querySelector(".input-price");
+        const infoDiv = row.querySelector(".product-info");
+        const qtyInput = row.querySelector(".input-qty");
 
-        let total = qty * price;
-        let taxAmt = total * t / 100;
+        if (option.value) {
+            priceInput.value = option.dataset.price;
+            infoDiv.innerHTML = `SKU: ${option.dataset.sku} | Available: <span class="stock-val">${option.dataset.stock}</span>`;
+            qtyInput.setAttribute("max", option.dataset.stock);
 
-        row.querySelector(".row-total").innerText = (total + taxAmt).toFixed(2);
+            // Check if stock is low
+            if (parseFloat(option.dataset.stock) <= 0) {
+                infoDiv.innerHTML += ` <span class="badge bg-danger ms-1">Out of Stock</span>`;
+            } else if (parseFloat(option.dataset.stock) < 5) {
+                infoDiv.innerHTML += ` <span class="badge bg-warning text-dark ms-1">Low Stock</span>`;
+            }
+        } else {
+            priceInput.value = "0.00";
+            infoDiv.innerHTML = "";
+            qtyInput.removeAttribute("max");
+        }
+        calculateTotals();
+    }
 
-        sub += total;
-        tax += taxAmt;
-    });
+    function calculateTotals() {
+        let subTotal = 0;
+        let taxTotal = 0;
 
-    document.getElementById("subTotal").innerText = sub.toFixed(2);
-    document.getElementById("taxTotal").innerText = tax.toFixed(2);
-    document.getElementById("grandTotal").innerText = (sub + tax).toFixed(2);
-}
+        document.querySelectorAll(".item-row").forEach(row => {
+            const qty = parseFloat(row.querySelector(".input-qty").value) || 0;
+            const price = parseFloat(row.querySelector(".input-price").value) || 0;
+            const taxPerc = parseFloat(row.querySelector(".input-tax").value) || 0;
 
-addRow();
+            const lineSub = qty * price;
+            const lineTax = lineSub * (taxPerc / 100);
+            const lineTotal = lineSub + lineTax;
+
+            row.querySelector(".line-total-display").innerText = `₹ ${lineTotal.toFixed(2)}`;
+
+            subTotal += lineSub;
+            taxTotal += lineTax;
+
+            // Stock warning visual
+            const stockVal = parseFloat(row.querySelector(".stock-val")?.innerText) || 0;
+            if (qty > stockVal) {
+                row.querySelector(".input-qty").classList.add("is-invalid");
+                row.querySelector(".input-qty").classList.add("text-danger");
+            } else {
+                row.querySelector(".input-qty").classList.remove("is-invalid");
+                row.querySelector(".input-qty").classList.remove("text-danger");
+            }
+        });
+
+        const discount = parseFloat(document.getElementById("discountInput").value) || 0;
+        const grandTotal = subTotal + taxTotal - discount;
+
+        document.getElementById("displaySubTotal").innerText = `₹ ${subTotal.toFixed(2)}`;
+        document.getElementById("displayTaxTotal").innerText = `₹ ${taxTotal.toFixed(2)}`;
+        document.getElementById("displayGrandTotal").innerText = `₹ ${grandTotal.toFixed(2)}`;
+    }
+
+    // Styles
+    document.head.insertAdjacentHTML('beforeend', `<style>
+        .bg-light-soft { background-color: #f0f2f5; }
+        .bg-light-soft:focus { background-color: #e9ecef; box-shadow: none; }
+    </style>`);
+
+    // Bootstrap validation
+    (() => {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation')
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                reindexRows(); // Ensure indices are correct before submit
+                const invalidQty = form.querySelectorAll(".input-qty.is-invalid").length;
+                if (!form.checkValidity() || invalidQty > 0) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    if (invalidQty > 0) alert("One or more items exceed available stock!");
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+    // Add first row on load
+    addRow();
 </script>
 {% endblock %}

@@ -1,0 +1,46 @@
+{% extends "pages/base.html" %}
+{% block title %}Register - InventoryPro ERP{% endblock %}
+
+{% block content %}
+<section class="hero" style="background: linear-gradient(135deg, #ffffff, #e7f8ff); padding: 80px 20px;">
+    <div class="container">
+        <h1 class="text-center">Create Your Account</h1>
+        <p class="text-center text-muted mb-5">Join InventoryPro ERP to manage your business efficiently.</p>
+
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card p-4" style="border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.05);">
+                    <form method="post" action="{% url 'pages:register' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" id="username"
+                                placeholder="Enter username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" id="email" placeholder="Enter email"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password1" class="form-label">Password</label>
+                            <input type="password" name="password1" class="form-control" id="password1"
+                                placeholder="Enter password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password2" class="form-label">Confirm Password</label>
+                            <input type="password" name="password2" class="form-control" id="password2"
+                                placeholder="Confirm password" required>
+                        </div>
+                        <button type="submit" class="btn btn-accent btn-lg w-100">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center mt-3">
+            Already have an account? <a href="{% url 'pages:login' %}" style="color: var(--accent);">Login here</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "pages/base.html" %}
+{% block title %}About - InventoryPro ERP{% endblock %}
+
+{% block content %}
+<section class="hero" style="background: linear-gradient(135deg, #ffffff, #e9f2ff);">
+    <div class="container">
+        <h1>About InventoryPro ERP</h1>
+        <p>InventoryPro ERP is designed to simplify business operations. From managing inventory, invoices, to detailed
+            reports, our platform helps you run your business efficiently.</p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Why Choose InventoryPro ERP?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-speedometer2"></i>
+                    <h5>Fast & Reliable</h5>
+                    <p>Get real-time insights, manage inventory, sales, and purchases efficiently with minimal effort.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-shield-lock"></i>
+                    <h5>Secure & Safe</h5>
+                    <p>Your data is encrypted and safely stored. Control who can access what with ease.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="bi bi-graph-up"></i>
+                    <h5>Analytics & Reports</h5>
+                    <p>Visualize sales, purchases, and stock trends with beautiful dashboards and detailed reports.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section py-5">
+    <a href="{% url 'pages:login' %}" class="btn btn-accent btn-lg">Start Using InventoryPro ERP</a>
+</section>
+{% endblock %}

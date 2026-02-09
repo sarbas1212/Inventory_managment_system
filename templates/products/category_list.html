@@ -1,64 +1,97 @@
 {% extends "base/base.html" %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h4>Categories</h4>
-    <div>
-        <a href="{% url 'products:category_create' %}" class="btn btn-primary btn-sm">+ New Category</a>
-        {% if parent_only %}
-            <a href="{% url 'products:category_list' %}" class="btn btn-outline-secondary btn-sm">Show All Categories</a>
-        {% else %}
-            <a href="{% url 'products:category_list' %}?parent_only=1" class="btn btn-outline-secondary btn-sm">Show Parent Categories</a>
-        {% endif %}
+<div class="card shadow-sm border-0">
+    <!-- Header -->
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-0 fw-semibold">Categories</h5>
+            <small class="text-muted">Manage product categories and hierarchy</small>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'products:category_create' %}" class="btn btn-primary btn-sm px-3">
+                <i class="bi bi-plus-lg me-1"></i> New Category
+            </a>
+            {% if parent_only %}
+            <a href="{% url 'products:category_list' %}" class="btn btn-outline-secondary btn-sm px-3">
+                Show All Categories
+            </a>
+            {% else %}
+            <a href="{% url 'products:category_list' %}?parent_only=1" class="btn btn-outline-secondary btn-sm px-3">
+                Show Parent Categories
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="category-table">
+                <thead class="table-light text-secondary small text-uppercase">
+                    <tr>
+                        <th class="ps-4">Name</th>
+                        <th>Parent</th>
+                        <th class="text-center pe-4" style="width:160px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td class="ps-4 fw-semibold">{{ category.name }}</td>
+                        <td>{{ category.parent.name|default:"-" }}</td>
+                        <td class="text-center pe-4">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'products:category_edit' category.id %}"
+                                    class="btn btn-outline-secondary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" action="{% url 'products:category_delete' category.id %}"
+                                    onsubmit="return confirm('Deactivate this category?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center py-5 text-muted">
+                            <i class="bi bi-tags fs-3 d-block mb-2"></i>
+                            No categories found
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<table class="table table-bordered table-striped align-middle" id="category-table">
-    <thead class="table-dark">
-        <tr>
-            <th>Name</th>
-            <th>Parent</th>
-            <th width="150">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for category in categories %}
-        <tr>
-            <td>{{ category.name }}</td>
-            <td>{{ category.parent.name|default:"-" }}</td>
-            <td>
-                <a href="{% url 'products:category_edit' category.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                <form method="post" action="{% url 'products:category_delete' category.id %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to deactivate this category?');">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
+<!-- Optional: child toggle script (kept as-is) -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const buttons = document.querySelectorAll(".toggle-children");
+    document.addEventListener("DOMContentLoaded", function () {
+        const buttons = document.querySelectorAll(".toggle-children");
 
-    buttons.forEach(btn => {
-        btn.addEventListener("click", function() {
-            const parentId = this.dataset.id;
+        buttons.forEach(btn => {
+            btn.addEventListener("click", function () {
+                const parentId = this.dataset.id;
 
-            // Toggle rows with data-parent-id = parentId
-            const childRows = document.querySelectorAll("tr[data-parent-id='" + parentId + "']");
-            childRows.forEach(row => {
-                if (row.style.display === "none") {
-                    row.style.display = "";
-                    btn.textContent = "Hide Children";
-                } else {
-                    row.style.display = "none";
-                    btn.textContent = "Show Children";
-                }
+                // Toggle rows with data-parent-id = parentId
+                const childRows = document.querySelectorAll("tr[data-parent-id='" + parentId + "']");
+                childRows.forEach(row => {
+                    if (row.style.display === "none") {
+                        row.style.display = "";
+                        btn.textContent = "Hide Children";
+                    } else {
+                        row.style.display = "none";
+                        btn.textContent = "Show Children";
+                    }
+                });
             });
         });
     });
-});
 </script>
 {% endblock %}

@@ -6,6 +6,12 @@ class Stock(TimeStampedModel):
     product = models.OneToOneField(Product, on_delete=models.CASCADE)
     quantity = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
+    class Meta:
+        constraints = [
+            models.CheckConstraint(condition=models.Q(quantity__gte=0), name="stock_quantity_non_negative")
+        ]
+
+
     def __str__(self):
         return f"{self.product.sku} - {self.quantity}"
 

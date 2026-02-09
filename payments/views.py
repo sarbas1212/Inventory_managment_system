@@ -3,11 +3,11 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 
-from invoices.models import PurchaseInvoice
+from invoices.models import SalesInvoice
 from purchases.models import Purchase
 from .models import Payment
-from .froms import VendorPaymentForm
-from .services import VendorPaymentService
+from .froms import CustomerPaymentForm, VendorPaymentForm
+from .services import CustomerPaymentService, VendorPaymentService
 from django.db import transaction
 
 @login_required
@@ -15,8 +15,8 @@ def payment_list(request):
     payments = Payment.objects.select_related(
         "sales_invoice",
         "sales_invoice__customer",
-        "purchase_invoice",
-        "purchase_invoice__vendor",
+        "purchase",
+        "purchase__vendor",
     ).order_by("-payment_date")
 
     return render(
@@ -35,8 +35,8 @@ def add_vendor_payment(request, invoice_id):
         if form.is_valid():
             amount = form.cleaned_data["amount"]
 
-            # Create payment
-            Payment.objects.create(
+            # Use service for payment and ledger posting
+            VendorPaymentService.add_payment(
                 purchase=purchase,
                 amount=amount,
                 payment_method=form.cleaned_data["payment_method"],
@@ -44,21 +44,9 @@ def add_vendor_payment(request, invoice_id):
                 payment_date=form.cleaned_data["payment_date"],
             )
 
-            # Update purchase totals
-            purchase.paid_amount += amount
-            purchase.balance_amount = purchase.grand_total - purchase.paid_amount
-
-            if purchase.balance_amount <= 0:
-                purchase.status = "PAID"
-                purchase.balance_amount = 0
-            elif purchase.paid_amount > 0:
-                purchase.status = "PARTIAL"
-            else:
-                purchase.status = "UNPAID"
-
-            purchase.save()
-
             return redirect("purchases:list")
+        else:
+            print("VENDOR PAYMENT FORM ERRORS:", form.errors)  
     else:
         form = VendorPaymentForm()
 
@@ -66,3 +54,34 @@ def add_vendor_payment(request, invoice_id):
         "form": form,
         "invoice": purchase
     })
+
+
+
+@login_required
+def add_customer_payment(request, invoice_id):
+    invoice = get_object_or_404(SalesInvoice, id=invoice_id)
+
+    if request.method == "POST":
+        form = CustomerPaymentForm(request.POST)
+        if form.is_valid():
+            CustomerPaymentService.add_payment(
+                sales_invoice=invoice,
+                amount=form.cleaned_data["amount"],
+                payment_method=form.cleaned_data["payment_method"],
+                transaction_id=form.cleaned_data.get("transaction_id"),
+                payment_date=form.cleaned_data["payment_date"],
+            )
+            return redirect("invoices:list")
+        else:
+            print("CUSTOMER PAYMENT FORM ERRORS:", form.errors)  
+    else:
+        form = CustomerPaymentForm()
+
+    return render(
+        request,
+        "payments/customer_payment_form.html",
+        {
+            "form": form,
+            "invoice": invoice,
+        }
+    )

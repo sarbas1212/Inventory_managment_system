@@ -6,5 +6,6 @@ app_name = "payments"
 urlpatterns = [
     path("", views.payment_list, name="list"),
     path("vendor/create/", views.add_vendor_payment, name="vendor_create"),
-    path("vendor/<int:invoice_id>/pay/", views.add_vendor_payment, name="add_vendor_payment")
+    path("vendor/<int:invoice_id>/pay/", views.add_vendor_payment, name="add_vendor_payment"),
+    path("customer/<int:invoice_id>/pay/",views.add_customer_payment,name="customer_pay")
 ]

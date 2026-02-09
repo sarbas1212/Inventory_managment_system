@@ -46,6 +46,6 @@ staticfiles/
 # Virtual Environments
 # (yours is outside, but safe)
 # =========================
-venv/
+virt/
 env/
-.venv/
+.virt/

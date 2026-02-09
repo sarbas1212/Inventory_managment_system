@@ -1,49 +1,77 @@
-<ul class="nav flex-column text-white mt-4">
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'dashboard:dashboard' %}">Dashboard</a>
-    </li>
+<div class="px-3 pt-4 pb-2">
+    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Main</h6>
+    <ul class="nav flex-column mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}"
+                href="{% url 'dashboard:dashboard' %}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+        </li>
+    </ul>
 
-    <li class="nav-item mt-3"><strong>Masters</strong></li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'products:list' %}">Products</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'products:category_list' %}">Category</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'customers:list' %}">Customers</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'vendors:list' %}">Vendors</a>
-    </li>
+    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Inventory Management</h6>
+    <ul class="nav flex-column mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'products' %}active{% endif %}"
+                href="{% url 'products:list' %}">
+                <i class="bi bi-box-seam"></i> Products
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'inventory' %}active{% endif %}"
+                href="{% url 'inventory:stock_list' %}">
+                <i class="bi bi-stack"></i> Stock Levels
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}"
+                href="{% url 'products:category_list' %}">
+                <i class="bi bi-tags"></i> Categories
+            </a>
+        </li>
+    </ul>
+    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Purchases & Vendors</h6>
+    <ul class="nav flex-column mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'purchases' %}active{% endif %}"
+                href="{% url 'purchases:list' %}">
+                <i class="bi bi-cart-check"></i> Purchase Invoices
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'vendors' %}active{% endif %}"
+                href="{% url 'vendors:list' %}">
+                <i class="bi bi-person-badge"></i> Vendors
+            </a>
+        </li>
+    </ul>
 
-    <li class="nav-item mt-3"><strong>Inventory</strong></li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'inventory:stock_list' %}">Stock</a>
-    </li>
+    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Sales & Customers</h6>
+    <ul class="nav flex-column mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'invoices' %}active{% endif %}"
+                href="{% url 'invoices:list' %}">
+                <i class="bi bi-receipt"></i> Sales Invoices
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'customers' %}active{% endif %}"
+                href="{% url 'customers:list' %}">
+                <i class="bi bi-people"></i> Customers
+            </a>
+        </li>
+    </ul>
 
-    <li class="nav-item mt-3"><strong>Invoices</strong></li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'invoices:list' %}">Sales Invoices</a>
-    </li>
-
-    <li class="nav-item mt-3"><strong>Purchases</strong></li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'purchases:list' %}">Purchases</a>
-    </li>
-
-    <li class="nav-item mt-3"><strong>Payments</strong></li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'payments:list' %}">Payments</a>
-    </li>
-
-    {% comment %} <li class="nav-item mt-3"><strong>Reports</strong></li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'reports:list' %}">Reports</a>
-    </li> {% endcomment %}
-
-    {% comment %} <li class="nav-item mt-3"><strong>Documents</strong></li>
-    <li class="nav-item">
-        <a class="nav-link text-white" href="{% url 'documents:list' %}">Documents</a>
-    </li> {% endcomment %}
-</ul>
+    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Finance</h6>
+    <ul class="nav flex-column mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.app_name == 'payments' %}active{% endif %}"
+                href="{% url 'payments:list' %}">
+                <i class="bi bi-wallet2"></i> Payments
+            </a>
+        </li>
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="#"><i class="bi bi-journal-text"></i> Ledger</a>
+        </li> -->
+    </ul>
+</div>

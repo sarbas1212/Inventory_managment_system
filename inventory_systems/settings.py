@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     
     'widget_tweaks',
 
-    'accounts_ledger',
+    'accounts_ledger.apps.AccountsLedgerConfig',
     'accounts',
     'core',
     'customers',
@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'purchases',
     'reports',
     'sales',
-    'vendors'
+    'vendors',
+    'pages'
 
 ]
 
@@ -136,17 +137,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'
+
+# Tell Django where to find your static files
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    BASE_DIR / "statics",  # your folder for CSS, JS, images
 ]
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# For production (collected static files)
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = 'dashboard:dashboard'
+LOGOUT_REDIRECT_URL = '/'
 
 
 ADMIN_SITE_HEADER = "Inventory ERP"
+
+AUTH_USER_MODEL = 'accounts.CustomUser'

@@ -1,0 +1,39 @@
+{% extends "pages/base.html" %}
+{% block title %}Contact - InventoryPro ERP{% endblock %}
+
+{% block content %}
+<section class="hero" style="background: linear-gradient(135deg, #ffffff, #f1f8f9);">
+    <div class="container">
+        <h1>Contact Us</h1>
+        <p>We are here to help. Reach out for support, queries, or feedback regarding InventoryPro ERP.</p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card" style="padding: 30px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.05);">
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" placeholder="John Doe" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" placeholder="john@example.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Message</label>
+                            <textarea class="form-control" id="message" rows="5" placeholder="Your message here..."
+                                required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-accent btn-lg">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

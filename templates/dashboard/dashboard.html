@@ -1,6 +1,234 @@
 {% extends "base/base.html" %}
-
 {% block content %}
-<h2>Welcome to Inventory ERP</h2>
-<p>This is your dashboard.</p>
+<div class="container-fluid py-2">
+
+    <!-- TITLE BAR -->
+    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+        <div>
+            <h5 class="mb-0 fw-semibold">Control Panel</h5>
+            <small class="text-muted">Operational Overview</small>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'invoices:create' %}" class="btn btn-sm btn-primary">New Invoice</a>
+            <a href="{% url 'purchases:create' %}" class="btn btn-sm btn-outline-secondary">New Purchase</a>
+        </div>
+    </div>
+
+
+    <!-- 🔴 OUTSTANDING RECEIVABLES -->
+    {% if overdue_invoices %}
+    <div class="card border-danger mb-3">
+        <div class="card-header bg-danger-subtle text-danger fw-semibold">
+            Outstanding Receivables (Overdue)
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-3">Invoice</th>
+                        <th>Customer</th>
+                        <th>Due Date</th>
+                        <th class="text-end">Amount</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in overdue_invoices %}
+                    <tr>
+                        <td class="ps-3 fw-semibold">{{ inv.invoice_number }}</td>
+                        <td>{{ inv.customer.name }}</td>
+                        <td class="text-danger">{{ inv.calculated_due_date }}</td>
+                        <td class="text-end fw-semibold">₹ {{ inv.balance_amount|floatformat:2 }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'invoices:detail' inv.id %}" class="btn btn-sm btn-outline-danger">
+                                Open
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!-- PRIMARY STATUS AREA -->
+    <div class="row g-3 mb-3">
+
+        <!-- FINANCIAL POSITION -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Financial Position</div>
+                <div class="card-body">
+
+                    <div class="row text-center">
+
+                        <div class="col-6 border-end">
+                            <div class="text-muted small">Sales</div>
+                            <div class="fs-5 fw-bold">₹ {{ total_sales|floatformat:2 }}</div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="text-muted small">Purchases</div>
+                            <div class="fs-5 fw-bold">₹ {{ total_purchases|floatformat:2 }}</div>
+                        </div>
+
+                        <div class="col-6 mt-3 border-end">
+                            <div class="text-muted small">Receivable</div>
+                            <div class="fw-semibold text-danger">₹ {{ total_receivables|floatformat:2 }}</div>
+                        </div>
+
+                        <div class="col-6 mt-3">
+                            <div class="text-muted small">Payable</div>
+                            <div class="fw-semibold text-danger">₹ {{ total_payables|floatformat:2 }}</div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- INVENTORY POSITION -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">Inventory Position</div>
+                <div class="card-body text-center">
+
+                    <div class="row">
+
+                        <div class="col-6 border-end">
+                            <div class="text-muted small">Total Items</div>
+                            <div class="fs-5 fw-bold">{{ total_products }}</div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="text-muted small">Low Stock</div>
+                            <div class="fs-5 fw-bold text-warning">{{ low_stock_count }}</div>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-3">
+                        <a href="{% url 'products:list' %}" class="btn btn-sm btn-outline-secondary">
+                            Open Inventory Register
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ACTIVITY REGISTERS -->
+    <div class="row g-3">
+
+        <!-- SALES REGISTER -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <span>Sales Register</span>
+                    <a href="{% url 'invoices:list' %}" class="small text-decoration-none">Open</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Invoice</th>
+                                <th>Customer</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in recent_sales %}
+                            <tr>
+                                <td class="ps-3">
+                                    <a href="{% url 'invoices:detail' sale.id %}"
+                                        class="text-decoration-none fw-semibold">
+                                        {{ sale.invoice_number }}
+                                    </a>
+                                </td>
+                                <td>{{ sale.customer.name }}</td>
+                                <td class="text-end">₹ {{ sale.grand_total|floatformat:2 }}</td>
+                                <td class="text-center">
+                                    <span class="badge
+                                        {% if sale.status == 'PAID' %}bg-success
+                                        {% elif sale.status == 'PARTIAL' %}bg-warning text-dark
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ sale.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">No entries</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- PURCHASE REGISTER -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <span>Purchase Register</span>
+                    <a href="{% url 'purchases:list' %}" class="small text-decoration-none">Open</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Purchase</th>
+                                <th>Vendor</th>
+                                <th class="text-end">Amount</th>
+                                <th class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for purchase in recent_purchases %}
+                            <tr>
+                                <td class="ps-3">
+                                    <a href="{% url 'purchases:detail' purchase.id %}"
+                                        class="text-decoration-none fw-semibold">
+                                        {{ purchase.purchase_number }}
+                                    </a>
+                                </td>
+                                <td>{{ purchase.vendor.name }}</td>
+                                <td class="text-end">₹ {{ purchase.grand_total|floatformat:2 }}</td>
+                                <td class="text-center">
+                                    <span class="badge
+                                        {% if purchase.status == 'PAID' %}bg-success
+                                        {% elif purchase.status == 'PARTIAL' %}bg-warning text-dark
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ purchase.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">No entries</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
 {% endblock %}

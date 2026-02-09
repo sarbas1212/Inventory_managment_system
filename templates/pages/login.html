@@ -1,0 +1,36 @@
+{% extends "pages/base.html" %}
+{% block title %}Login - InventoryPro ERP{% endblock %}
+
+{% block content %}
+<section class="hero" style="background: linear-gradient(135deg, #ffffff, #e7f1ff); padding: 80px 20px;">
+    <div class="container">
+        <h1 class="text-center">Login to InventoryPro ERP</h1>
+        <p class="text-center text-muted mb-5">Access your dashboard and manage your inventory efficiently.</p>
+
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card p-4" style="border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.05);">
+                    <form method="post" action="{% url 'pages:login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" id="username"
+                                placeholder="Enter username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" id="password"
+                                placeholder="Enter password" required>
+                        </div>
+                        <button type="submit" class="btn btn-accent btn-lg w-100">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center mt-3">
+            Don't have an account? <a href="{% url 'pages:register' %}" style="color: var(--accent);">Register here</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

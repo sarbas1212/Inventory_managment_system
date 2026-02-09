@@ -24,8 +24,10 @@ urlpatterns = [
     # auth
     path('accounts/', include('django.contrib.auth.urls')),
 
+    path('', include('pages.urls')),
+
     # dashboard
-    path('', include('dashboard.urls')),
+    path('dashboard/', include('dashboard.urls')),
 
     # master data
     path('products/', include('products.urls')),

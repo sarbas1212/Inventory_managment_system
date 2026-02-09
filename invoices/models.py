@@ -10,10 +10,10 @@ from customers.models import Customer
 # SALES INVOICE
 # ===============================
 class SalesInvoice(TimeStampedModel):
-    STATUS_CHOICES = (
-        ("PAID", "Paid"),
-        ("PARTIAL", "Partial"),
-        ("UNPAID", "Unpaid"),
+    DOCUMENT_STATUS = (
+        ("DRAFT", "Draft"),
+        ("POSTED", "Posted"),
+        ("CANCELLED", "Cancelled"),
     )
 
     invoice_number = models.CharField(max_length=50, unique=True)
@@ -28,7 +28,14 @@ class SalesInvoice(TimeStampedModel):
     paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     balance_amount = models.DecimalField(max_digits=12, decimal_places=2)
 
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=15, choices=DOCUMENT_STATUS, default="DRAFT")
+    
+    # Financial Status (denormalized)
+    payment_status = models.CharField(
+        max_length=10, 
+        choices=(("PAID", "Paid"), ("PARTIAL", "Partial"), ("UNPAID", "Unpaid")),
+        default="UNPAID"
+    )
 
     def __str__(self):
         return self.invoice_number
@@ -45,45 +52,15 @@ class SalesInvoiceItem(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2)
     tax_percentage = models.DecimalField(max_digits=5, decimal_places=2)
 
+    @property
+    def line_total(self):
+        return self.quantity * self.price + (self.quantity * self.price * self.tax_percentage / 100)
 
-class PurchaseInvoice(TimeStampedModel):
-    STATUS_CHOICES = (
-        ("UNPAID", "Unpaid"),
-        ("PARTIAL", "Partial"),
-        ("PAID", "Paid"),
-    )
 
-    invoice_number = models.CharField(max_length=20, unique=True)
-    vendor = models.ForeignKey(
-        Vendor,
-        on_delete=models.PROTECT,
-        related_name="purchase_invoices"
-    )
-    invoice_date = models.DateField()
-    sub_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    tax_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    grand_total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    paid_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    balance_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
 
-    def __str__(self):
-        return self.invoice_number
+
     
 
 
 
-class PurchaseInvoiceItem(models.Model):
-    invoice = models.ForeignKey(
-        PurchaseInvoice,
-        related_name="items",
-        on_delete=models.CASCADE
-    )
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=12, decimal_places=2)
-    tax_percentage = models.DecimalField(max_digits=5, decimal_places=2,default=0)
-
-    def __str__(self):
-        return f"{self.product.name} - {self.quantity}"
 
