@@ -1,60 +1,112 @@
 {% extends "base/base.html" %}
+{% block title %}Payment Register - InventoryPro{% endblock %}
+{% block page_title %}Finance & Treasury{% endblock %}
+{% block page_title_inner %}Cash & Bank Posting Register{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h4>Payments</h4>
+<div class="sap-animate">
+    <!-- SaaS Filter Bar -->
+    <div class="sap-filter-bar mb-4">
+        <div class="d-flex align-items-center flex-grow-1">
+            <div class="small text-secondary fw-600 uppercase letter-spacing-03">
+                <i class="bi bi-info-circle me-1 opacity-50"></i>
+                Ledger of all financial liquidations and cleared transactions.
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'payments:list' %}" class="btn-ghost px-3 text-decoration-none">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Refresh Ledger
+            </a>
+            <div class="topbar-divider"></div>
+            <!-- Future actions like 'Export Statement' or 'Post Payment' would go here -->
+        </div>
+    </div>
+
+    <!-- Payment Table -->
+    <div class="sap-tile p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="sap-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4" style="width: 15%">Value Date</th>
+                        <th style="width: 15%">Flow Category</th>
+                        <th style="width: 15%">Associated Doc</th>
+                        <th style="width: 25%">Target/Source Entity</th>
+                        <th style="width: 15%">Payment Method</th>
+                        <th class="text-end pe-4" style="width: 15%">Document Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in payments %}
+                    <tr>
+                        <td class="ps-4 small" style="color: var(--text-primary);">{% if p.payment_date %}{{ p.payment_date|date:"d M Y" }}{% else %}—{% endif %}</td>
+                        <td>
+                            {% if p.sales_invoice %}
+                            <span
+                                class="badge bg-success bg-opacity-10 text-success rounded-1 extra-small border border-success border-opacity-25 py-1 px-2">CASH
+                                INFLOW</span>
+                            {% elif p.purchase %}
+                            <span
+                                class="badge bg-danger bg-opacity-10 text-danger rounded-1 extra-small border border-danger border-opacity-25 py-1 px-2">CASH
+                                OUTFLOW</span>
+                            {% else %}
+                            <span
+                                class="badge bg-secondary bg-opacity-10 text-secondary rounded-1 extra-small border border-secondary border-opacity-25 py-1 px-2">UNDEFINED</span>
+                            {% endif %}
+                        </td>
+                        <td class="small fw-bold text-primary">
+                            {% if p.sales_invoice %}
+                            {{ p.sales_invoice.invoice_number|default:"#INV-TBD" }}
+                            {% elif p.purchase %}
+                            {{ p.purchase.purchase_number|default:"#PRCH-TBD" }}
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small fw-bold" style="color: var(--text-primary);">
+                                {% if p.sales_invoice and p.sales_invoice.customer %}
+                                {{ p.sales_invoice.customer.name }}
+                                {% elif p.purchase and p.purchase.vendor %}
+                                {{ p.purchase.vendor.name }}
+                                {% else %}
+                                Unknown Entity
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="extra-small text-muted text-uppercase fw-bold">{{ p.get_payment_method_display|default:"Manual Posting" }}</td>
+                        <td class="text-end pe-4 fw-bold small" style="color: var(--text-primary);">₹ {% if p.amount %}{{ p.amount|floatformat:2 }}{% else %}0.00{% endif %}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="opacity-25 mb-2"><i class="bi bi-wallet2 fs-1"></i></div>
+                            <p class="text-muted small">No financial postings cleared in this ledger.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<table class="table table-bordered table-striped align-middle">
-    <thead class="table-dark">
-        <tr>
-            <th>Date</th>
-            <th>Type</th>
-            <th>Invoice No</th>
-            <th>Party</th>
-            <th>Method</th>
-            <th class="text-end">Amount</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for p in payments %}
-        <tr>
-            <td>{{ p.payment_date }}</td>
+<style>
+    .bg-black {
+        background-color: #000000 !important;
+    }
 
-            <td>
-                {% if p.sales_invoice %}
-                    <span class="badge bg-primary">Sales</span>
-                {% else %}
-                    <span class="badge bg-secondary">Purchase</span>
-                {% endif %}
-            </td>
+    .extra-small {
+        font-size: 0.65rem;
+    }
 
-            <td>
-                {% if p.sales_invoice %}
-                    {{ p.sales_invoice.invoice_number }}
-                {% else %}
-                    {{ p.purchase_invoice.purchase_number }}
-                {% endif %}
-            </td>
+    .sap-table td {
+        vertical-align: middle;
+    }
 
-            <td>
-                {% if p.sales_invoice %}
-                    {{ p.sales_invoice.customer.name }}
-                {% else %}
-                    {{ p.purchase_invoice.vendor.name }}
-                {% endif %}
-            </td>
-
-            <td>{{ p.get_payment_method_display }}</td>
-            <td class="text-end">₹ {{ p.amount }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="6" class="text-center text-muted">
-                No payments found
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    .italic {
+        font-style: italic;
+    }
+</style>
 {% endblock %}

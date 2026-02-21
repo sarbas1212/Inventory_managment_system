@@ -3,169 +3,167 @@
 
 {% block content %}
 <div class="container py-5">
-    <!-- Invoice Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="fw-bold text-primary mb-1">Sales Invoice</h2>
-            <p class="text-secondary">#{{ invoice.invoice_number }}</p>
-        </div>
-        <div class="text-end">
-            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm me-2">
-                <i class="bi bi-printer me-1"></i> Print
-            </button>
-            <a href="{% url 'invoices:list' %}" class="btn btn-primary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Back to List
-            </a>
-        </div>
-    </div>
+ <!-- Invoice Header -->
+ <div class="d-flex justify-content-between align-items-center mb-4">
+ <div>
+ <h2 class="fw-bold text-primary mb-1">Sales Invoice</h2>
+ <p class="text-secondary">#{{ invoice.invoice_number }}</p>
+ </div>
+ <div class="text-end">
+ <button onclick="window.print()" class="btn btn-outline-secondary btn-sm me-2">
+ <i class="bi bi-printer me-1"></i> Print
+ </button>
+ <a href="{% url 'invoices:list' %}" class="btn btn-primary btn-sm">
+ <i class="bi bi-arrow-left me-1"></i> Back to List
+ </a>
+ </div>
+ </div>
 
-    <div class="row g-4">
-        <!-- Main Invoice Content -->
-        <div class="col-lg-9">
-            <div class="card border-0 shadow-sm p-4">
-                <div class="row mb-5">
-                    <div class="col-md-6">
-                        <h6 class="text-uppercase text-secondary small fw-bold mb-3">Customer Details</h6>
-                        <h5 class="fw-bold mb-1">{{ invoice.customer.name }}</h5>
-                        <p class="text-secondary mb-0">{{ invoice.customer.email|default:"" }}</p>
-                        <p class="text-secondary mb-0">{{ invoice.customer.phone|default:"" }}</p>
-                        <p class="text-secondary">{{ invoice.customer.address|default:"" }}</p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <h6 class="text-uppercase text-secondary small fw-bold mb-3">Invoice Details</h6>
-                        <p class="mb-1"><span class="text-secondary">Date:</span> <span class="fw-bold">{{
-                                invoice.invoice_date }}</span></p>
-                        <p class="mb-1"><span class="text-secondary">Status:</span>
-                            <span
-                                class="badge {% if invoice.status == 'PAID' %}bg-success{% elif invoice.status == 'PARTIAL' %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill px-3">
-                                {{ invoice.get_status_display }}
-                            </span>
-                        </p>
-                    </div>
-                </div>
+ <div class="row g-4">
+ <!-- Main Invoice Content -->
+ <div class="col-lg-9">
+ <div class="card border-0 shadow-sm p-4">
+ <div class="row mb-5">
+ <div class="col-md-6">
+ <h6 class="text-uppercase text-secondary small fw-bold mb-3">Customer Details</h6>
+ <h5 class="fw-bold mb-1">{{ invoice.customer.name }}</h5>
+ <p class="text-secondary mb-0">{{ invoice.customer.email|default:"" }}</p>
+ <p class="text-secondary mb-0">{{ invoice.customer.phone|default:"" }}</p>
+ <p class="text-secondary">{{ invoice.customer.address|default:"" }}</p>
+ </div>
+ <div class="col-md-6 text-md-end">
+ <h6 class="text-uppercase text-secondary small fw-bold mb-3">Invoice Details</h6>
+ <p class="mb-1"><span class="text-secondary">Date:</span> <span class="fw-bold">{{ invoice.invoice_date }}</span></p>
+ <p class="mb-1"><span class="text-secondary">Status:</span>
+ <span
+ class="badge {% if invoice.status == 'PAID' %}bg-success{% elif invoice.status == 'PARTIAL' %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill px-3">
+ {{ invoice.get_status_display }}
+ </span>
+ </p>
+ </div>
+ </div>
 
-                <!-- Items Table -->
-                <div class="table-responsive">
-                    <table class="table table-borderless align-middle mb-4">
-                        <thead class="border-bottom text-secondary small text-uppercase">
-                            <tr>
-                                <th style="width: 45%;">Item Description</th>
-                                <th class="text-center">Qty</th>
-                                <th class="text-end">Unit Price</th>
-                                <th class="text-center">Tax %</th>
-                                <th class="text-end">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in items %}
-                            <tr class="border-bottom-dashed">
-                                <td class="py-3">
-                                    <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
-                                    <small class="text-secondary">SKU: {{ item.product.sku }}</small>
-                                </td>
-                                <td class="text-center">{{ item.quantity }}</td>
-                                <td class="text-end">₹ {{ item.price }}</td>
-                                <td class="text-center">{{ item.tax_percentage }}%</td>
-                                <td class="text-end fw-bold">₹ {{ item.line_total|floatformat:2 }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+ <!-- Items Table -->
+ <div class="table-responsive">
+ <table class="table table-borderless align-middle mb-4">
+ <thead class="border-bottom text-secondary small text-uppercase">
+ <tr>
+ <th style="width: 45%;">Item Description</th>
+ <th class="text-center">Qty</th>
+ <th class="text-end">Unit Price</th>
+ <th class="text-center">Tax %</th>
+ <th class="text-end">Amount</th>
+ </tr>
+ </thead>
+ <tbody>
+ {% for item in items %}
+ <tr class="border-bottom-dashed">
+ <td class="py-3">
+ <h6 class="mb-0 fw-bold">{{ item.product.name }}</h6>
+ <small class="text-secondary">SKU: {{ item.product.sku }}</small>
+ </td>
+ <td class="text-center">{{ item.quantity }}</td>
+ <td class="text-end">₹ {{ item.price }}</td>
+ <td class="text-center">{{ item.tax_percentage }}%</td>
+ <td class="text-end fw-bold">₹ {{ item.line_total|floatformat:2 }}</td>
+ </tr>
+ {% endfor %}
+ </tbody>
+ </table>
+ </div>
 
-                <!-- Totals -->
-                <div class="row justify-content-end">
-                    <div class="col-md-5">
-                        <div class="border-top pt-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-secondary">Sub Total</span>
-                                <span class="fw-bold">₹ {{ invoice.sub_total|floatformat:2 }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-secondary">Total Tax</span>
-                                <span class="fw-bold">₹ {{ invoice.tax_amount|floatformat:2 }}</span>
-                            </div>
-                            {% if invoice.discount_amount > 0 %}
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-secondary">Discount</span>
-                                <span class="text-danger fw-bold">- ₹ {{ invoice.discount_amount|floatformat:2 }}</span>
-                            </div>
-                            {% endif %}
-                            <div class="d-flex justify-content-between mb-4 mt-3">
-                                <span class="h5 fw-bold text-primary">Grand Total</span>
-                                <span class="h5 fw-bold text-primary">₹ {{ invoice.grand_total|floatformat:2 }}</span>
-                            </div>
+ <!-- Totals -->
+ <div class="row justify-content-end">
+ <div class="col-md-5">
+ <div class="border-top pt-3">
+ <div class="d-flex justify-content-between mb-2">
+ <span class="text-secondary">Sub Total</span>
+ <span class="fw-bold">₹ {{ invoice.sub_total|floatformat:2 }}</span>
+ </div>
+ <div class="d-flex justify-content-between mb-2">
+ <span class="text-secondary">Total Tax</span>
+ <span class="fw-bold">₹ {{ invoice.tax_amount|floatformat:2 }}</span>
+ </div>
+ {% if invoice.discount_amount > 0 %}
+ <div class="d-flex justify-content-between mb-2">
+ <span class="text-secondary">Discount</span>
+ <span class="text-danger fw-bold">- ₹ {{ invoice.discount_amount|floatformat:2 }}</span>
+ </div>
+ {% endif %}
+ <div class="d-flex justify-content-between mb-4 mt-3">
+ <span class="h5 fw-bold text-primary">Grand Total</span>
+ <span class="h5 fw-bold text-primary">₹ {{ invoice.grand_total|floatformat:2 }}</span>
+ </div>
 
-                            <hr>
+ <hr>
 
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-secondary">Amount Received</span>
-                                <span class="text-success fw-bold">₹ {{ invoice.paid_amount|floatformat:2 }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="text-secondary">Balance Due</span>
-                                <span class="text-danger fw-bold">₹ {{ invoice.balance_amount|floatformat:2 }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+ <div class="d-flex justify-content-between mb-2">
+ <span class="text-secondary">Amount Received</span>
+ <span class="text-success fw-bold">₹ {{ invoice.paid_amount|floatformat:2 }}</span>
+ </div>
+ <div class="d-flex justify-content-between">
+ <span class="text-secondary">Balance Due</span>
+ <span class="text-danger fw-bold">₹ {{ invoice.balance_amount|floatformat:2 }}</span>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
 
-        <!-- Sidebar Info -->
-        <div class="col-lg-3">
-            <div class="card border-0 shadow-sm p-4 mb-4">
-                <h6 class="text-uppercase text-secondary small fw-bold mb-3">Quick Actions</h6>
-                {% if invoice.balance_amount > 0 %}
-                <a href="{% url 'payments:customer_pay' invoice.id %}" class="btn btn-success w-100 mb-2">
-                    <i class="bi bi-wallet2 me-2"></i>Receive Payment
-                </a>
-                {% endif %}
-            </div>
+ <!-- Sidebar Info -->
+ <div class="col-lg-3">
+ <div class="card border-0 shadow-sm p-4 mb-4">
+ <h6 class="text-uppercase text-secondary small fw-bold mb-3">Quick Actions</h6>
+ {% if invoice.balance_amount > 0 %}
+ <a href="{% url 'payments:customer_pay' invoice.id %}" class="btn btn-success w-100 mb-2">
+ <i class="bi bi-wallet2 me-2"></i>Receive Payment
+ </a>
+ {% endif %}
+ </div>
 
-            <div class="card border-0 shadow-sm p-4">
-                <h6 class="text-uppercase text-secondary small fw-bold mb-3">System Info</h6>
-                <div class="small">
-                    <p class="mb-1 text-secondary">Created At: <span class="text-dark">{{ invoice.created_at|date:"d M
-                            Y, H:i" }}</span></p>
-                </div>
-            </div>
-        </div>
-    </div>
+ <div class="card border-0 shadow-sm p-4">
+ <h6 class="text-uppercase text-secondary small fw-bold mb-3">System Info</h6>
+ <div class="small">
+ <p class="mb-1 text-secondary">Created At: <span class="text-dark">{{ invoice.created_at|date:"d M Y, H:i" }}</span></p>
+ </div>
+ </div>
+ </div>
+ </div>
 </div>
 
 <style>
-    .border-bottom-dashed {
-        border-bottom: 1px dashed #dee2e6;
-    }
+ .border-bottom-dashed {
+ border-bottom: 1px dashed #dee2e6;
+ }
 
-    @media print {
+ @media print {
 
-        .btn,
-        .col-lg-3,
-        .sidebar,
-        .navbar {
-            display: none !important;
-        }
+ .btn,
+ .col-lg-3,
+ .sidebar,
+ .navbar {
+ display: none !important;
+ }
 
-        .col-lg-9 {
-            width: 100% !important;
-        }
+ .col-lg-9 {
+ width: 100% !important;
+ }
 
-        .card {
-            box-shadow: none !important;
-            border: 0 !important;
-        }
+ .card {
+ box-shadow: none !important;
+ border: 0 !important;
+ }
 
-        body {
-            background-color: white !important;
-        }
+ body {
+ background-color: white !important;
+ }
 
-        .container {
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-    }
+ .container {
+ max-width: 100% !important;
+ margin: 0 !important;
+ padding: 0 !important;
+ }
+ }
 </style>
 {% endblock %}

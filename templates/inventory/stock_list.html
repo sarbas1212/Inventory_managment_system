@@ -1,143 +1,125 @@
 {% extends "base/base.html" %}
+{% block title %}Stock Registry - InventoryPro{% endblock %}
+{% block page_title %}Inventory & Logistics{% endblock %}
+{% block page_title_inner %}Stock Ledger{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-1">Current Stock Levels</h3>
-            <p class="text-secondary small mb-0">Monitor and manage your product inventory in real-time.</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'inventory:stock_adjustment' %}" class="btn btn-outline-dark shadow-sm">
-                <i class="bi bi-sliders2 me-1"></i> Adjust Stock
+<div class="sap-animate">
+    <!-- SaaS Filter Bar -->
+    <div class="sap-filter-bar mb-4">
+        <form method="get" class="d-flex align-items-center flex-grow-1 gap-3">
+            <div class="topbar-search flex-grow-1" style="max-width: 400px;">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" value="{{ query|default:'' }}" placeholder="Filter by Material or SKU..."
+                    class="sap-input">
+            </div>
+            <button type="submit" class="sap-btn sap-btn-outline px-3">
+                <i class="bi bi-funnel me-1"></i> Search
+            </button>
+        </form>
+
+        <div class="d-flex align-items-center gap-2 ms-4">
+            <a href="{% url 'inventory:stock_list' %}" class="btn-ghost px-3 text-decoration-none">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
             </a>
-            <a href="{% url 'inventory:movement_list' %}" class="btn btn-light shadow-sm">
-                <i class="bi bi-clock-history me-1"></i> Movement History
+            <div class="topbar-divider"></div>
+            <a href="{% url 'inventory:stock_adjustment' %}" class="sap-btn sap-btn-outline">
+                <i class="bi bi-sliders2 me-1"></i> Post Adjustment
+            </a>
+            <a href="{% url 'inventory:movement_list' %}" class="sap-btn sap-btn-outline">
+                <i class="bi bi-clock-history me-1"></i> Audit Trail
             </a>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-3">
-            <form method="get" class="row g-2">
-                <div class="col-md-10">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 text-secondary">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" name="q" class="form-control border-start-0 ps-0"
-                            placeholder="Search by Product Name or SKU..." value="{{ query }}">
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary w-100">Search</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Table -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary small text-uppercase border-bottom">
-                        <tr>
-                            <th class="ps-4">SKU</th>
-                            <th>Product Name</th>
-                            <th class="text-center">Current Quantity</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-end pe-4">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for s in page_obj %}
-                        <tr>
-                            <td class="ps-4 fw-bold text-secondary">{{ s.product.sku }}</td>
-                            <td>
-                                <div class="fw-bold">{{ s.product.name }}</div>
-                                <small class="text-muted">{{ s.product.category.name|default:"No Category" }}</small>
-                            </td>
-                            <td class="text-center">
-                                <h5
-                                    class="mb-0 fw-bold {% if s.quantity < 5 %}text-danger{% elif s.quantity < 15 %}text-warning{% else %}text-success{% endif %}">
-                                    {{ s.quantity|floatformat:2 }}
-                                </h5>
-                                <small class="text-muted">units</small>
-                            </td>
-                            <td class="text-center">
-                                {% if s.quantity <= 0 %} <span class="badge bg-danger rounded-pill">Out of Stock</span>
-                                    {% elif s.quantity < 5 %} <span
-                                        class="badge bg-danger bg-opacity-10 text-danger rounded-pill">Critical
-                                        Low</span>
-                                        {% elif s.quantity < 15 %} <span
-                                            class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 text-dark">
-                                            Low Stock</span>
-                                            {% else %}
-                                            <span
-                                                class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Healthy</span>
-                                            {% endif %}
-                            </td>
-                            <td class="text-end pe-4">
-                                <button type="button" class="btn btn-sm btn-outline-success border-0 px-2"
-                                    title="Quick Add Stock"
+    <!-- Stock Ledger Table -->
+    <div class="sap-tile p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="sap-table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 15%">Material Number</th>
+                        <th style="width: 35%">Material Description</th>
+                        <th style="width: 15%" class="text-center">Physical Stock</th>
+                        <th style="width: 15%" class="text-center">Availability</th>
+                        <th style="width: 20%" class="text-end pe-4">Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in page_obj %}
+                    <tr>
+                        <td class="fw-bold text-primary small">{{ s.product.sku }}</td>
+                        <td>
+                            <div class="small fw-bold" style="color: var(--text-primary);">{{ s.product.name }}</div>
+                            <div class="extra-small text-muted">{% if s.product.category %}{{ s.product.category.name }}{% else %}General Material{% endif %}</div>
+                        </td>
+                        <td class="text-center">
+                            <h6
+                                class="mb-0 fw-bold {% if s.quantity < 5 %}text-danger{% elif s.quantity < 15 %}text-warning{% else %}text-success{% endif %}">
+                                {% if s.quantity != None %}{{ s.quantity|floatformat:2 }}{% else %}0.00{% endif %}
+                            </h6>
+                            <span class="extra-small text-muted uppercase">
+                                {% if s.product.unit %}{{ s.product.unit|upper }}{% else %}UNITS{% endif %}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            {% if s.quantity <= 0 %} <span class="badge bg-danger rounded-1 extra-small">DEPLETED</span>
+                                {% elif s.quantity < 5 %} <span
+                                    class="badge bg-danger bg-opacity-10 text-danger rounded-1 extra-small border border-danger border-opacity-25">
+                                    CRITICAL LOW</span>
+                                    {% elif s.quantity < 15 %} <span
+                                        class="badge bg-warning bg-opacity-10 text-warning rounded-1 extra-small border border-warning border-opacity-25">
+                                        BELOW THRESHOLD</span>
+                                        {% else %}
+                                        <span
+                                            class="badge bg-success bg-opacity-10 text-success rounded-1 extra-small border border-success border-opacity-25">OPTIMAL</span>
+                                        {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-flex justify-content-end gap-1">
+                                <button type="button" class="sap-btn sap-btn-outline p-1 px-2 extra-small"
+                                    title="Inbound Posting"
                                     onclick="openQuickAdd('{{ s.product.id }}', '{{ s.product.name }}')">
                                     <i class="bi bi-plus-lg"></i>
                                 </button>
-                                {% if s.product.is_active %}
                                 <a href="{% url 'products:edit' s.product.id %}"
-                                    class="btn btn-sm btn-outline-secondary border-0 px-2" title="Edit Product">
+                                    class="sap-btn sap-btn-outline p-1 px-2 extra-small {% if not s.product.is_active %}disabled{% endif %}"
+                                    title="Master Record">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                {% else %}
-                                <button class="btn btn-sm btn-outline-secondary border-0 px-2 disabled"
-                                    title="Inactive Product">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <div class="text-muted">
-                                    <i class="bi bi-box-seam h1 d-block mb-3"></i>
-                                    No stock records found for "{{ query }}".
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="opacity-25 mb-2"><i class="bi bi-box-seam fs-1"></i></div>
+                            <p class="text-muted small">No logistics records found for specified query.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
-        <!-- Pagination -->
+        <!-- SAP-style Pagination -->
         {% if page_obj.has_other_pages %}
-        <div class="card-footer bg-white border-0 py-3">
-            <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm justify-content-center mb-0">
+        <div class="p-3 border-top border-light border-opacity-10 bg-black bg-opacity-10">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0 gap-1">
                     {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ query }}"><i
-                                class="bi bi-chevron-left"></i></a>
-                    </li>
+                    <li class="page-item"><a class="page-link sap-btn sap-btn-outline py-1"
+                            href="?page={{ page_obj.previous_page_number }}&q={{ query }}"><i
+                                class="bi bi-chevron-left"></i></a></li>
                     {% endif %}
 
-                    {% for i in page_obj.paginator.page_range %}
-                    {% if page_obj.number == i %}
-                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                    {% else %}
-                    <li class="page-item"><a class="page-link" href="?page={{ i }}&q={{ query }}">{{ i }}</a></li>
-                    {% endif %}
-                    {% endfor %}
+                    <li class="page-item disabled"><span
+                            class="page-link py-1 px-3 text-white small bg-transparent border-0">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
 
                     {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ query }}"><i
-                                class="bi bi-chevron-right"></i></a>
-                    </li>
+                    <li class="page-item"><a class="page-link sap-btn sap-btn-outline py-1"
+                            href="?page={{ page_obj.next_page_number }}&q={{ query }}"><i
+                                class="bi bi-chevron-right"></i></a></li>
                     {% endif %}
                 </ul>
             </nav>
@@ -146,36 +128,40 @@
     </div>
 </div>
 
-<!-- Quick Add Modal -->
-<div class="modal fade" id="quickAddModal" tabindex="-1" aria-hidden="true">
+<!-- SAP ERP Quick-Add Dialog -->
+<div class="modal fade" id="quickAddModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header border-bottom py-3">
-                <h5 class="modal-title fw-bold" id="quickAddTitle">Quick Add Stock</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content"
+            style="background: var(--sap-surface-color); border: 1px solid var(--sap-border-color); border-radius: 4px;">
+            <div class="modal-header border-bottom border-light border-opacity-10 py-2">
+                <h6 class="modal-title fw-bold text-white small uppercase" id="quickAddTitle">Inbound Stock Posting</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    style="font-size: 0.6rem;"></button>
             </div>
             <form action="{% url 'inventory:quick_add' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="product_id" id="modal_product_id">
                 <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <p class="text-secondary small mb-1">Product</p>
-                        <h6 class="fw-bold fs-5" id="modal_product_name">--</h6>
+                    <div class="mb-4">
+                        <label class="extra-small text-muted text-uppercase fw-bold d-block mb-1">Target
+                            Material</label>
+                        <div class="h6 fw-bold text-primary mb-0" id="modal_product_name">--</div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-uppercase">Quantity to Add</label>
-                        <input type="number" step="0.01" name="quantity" class="form-control border-0 bg-light py-2"
-                            required min="0.01" autofocus>
+                        <label class="extra-small text-muted text-uppercase fw-bold d-block mb-1">Incremental
+                            Quantity</label>
+                        <input type="number" step="0.01" name="quantity" class="sap-input" required min="0.01">
                     </div>
-                    <div>
-                        <label class="form-label fw-bold small text-uppercase">Remarks (Optional)</label>
-                        <input type="text" name="remarks" class="form-control border-0 bg-light py-2"
-                            placeholder="e.g. Received shipment">
+                    <div class="mb-0">
+                        <label class="extra-small text-muted text-uppercase fw-bold d-block mb-1">Transaction Logic /
+                            Remarks</label>
+                        <input type="text" name="remarks" class="sap-input" placeholder="e.g. Bulk Procurement Inbound">
                     </div>
                 </div>
-                <div class="modal-footer border-top p-3 d-flex gap-2">
-                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">Confirm Addition</button>
+                <div class="modal-footer border-top border-light border-opacity-10 p-2">
+                    <button type="button" class="sap-btn sap-btn-outline extra-small" data-bs-dismiss="modal">Cancel
+                        Request</button>
+                    <button type="submit" class="sap-btn sap-btn-primary extra-small px-3">Confirm Posting</button>
                 </div>
             </form>
         </div>
@@ -184,16 +170,38 @@
 
 <script>
     const quickAddModal = new bootstrap.Modal(document.getElementById('quickAddModal'));
-
     function openQuickAdd(id, name) {
         document.getElementById('modal_product_id').value = id;
         document.getElementById('modal_product_name').innerText = name;
         quickAddModal.show();
-
-        // Focus quantity input when modal is shown
         document.getElementById('quickAddModal').addEventListener('shown.bs.modal', function () {
             this.querySelector('input[name="quantity"]').focus();
         }, { once: true });
     }
 </script>
+
+<style>
+    .bg-black {
+        background-color: #000000 !important;
+    }
+
+    .extra-small {
+        font-size: 0.65rem;
+    }
+
+    .sap-table td {
+        vertical-align: middle;
+    }
+
+    .pagination .page-link {
+        background: transparent;
+        border-color: var(--sap-border-color);
+        color: var(--sap-text-secondary);
+    }
+
+    .pagination .page-link:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+    }
+</style>
 {% endblock %}

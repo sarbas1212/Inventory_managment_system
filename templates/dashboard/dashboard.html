@@ -1,234 +1,278 @@
 {% extends "base/base.html" %}
+{% block title %}Dashboard — InventoryPro{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_title_inner %}Dashboard{% endblock %}
+
+{% block header_title %}
+<div class="d-flex align-items-center justify-content-between">
+ <div>
+ <h2 style="margin-bottom:0.25rem;">Good {{ greeting }}, {{ user.username }}!</h2>
+ <p style="color:var(--text-muted); font-size:0.8125rem; margin:0;">Here's what's happening with your business
+ today.</p>
+ </div>
+ <a href="{% url 'invoices:create' %}" class="btn-primary-gradient d-none d-md-flex">
+ <i class="bi bi-plus-lg"></i> New Invoice
+ </a>
+</div>
+{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-2">
+<div class="animate-in">
 
-    <!-- TITLE BAR -->
-    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-        <div>
-            <h5 class="mb-0 fw-semibold">Control Panel</h5>
-            <small class="text-muted">Operational Overview</small>
-        </div>
+ <!-- KPI Cards -->
+ <div class="row g-3 mb-4">
+ <div class="col-xl-3 col-md-6">
+ <div class="kpi-card">
+ <div class="d-flex align-items-start justify-content-between mb-3">
+ <div class="kpi-icon success"><i class="bi bi-currency-rupee"></i></div>
+ <span class="kpi-trend up"><i class="bi bi-caret-up-fill"></i> 12%</span>
+ </div>
+ <div class="kpi-label">Total Sales</div>
+ <div class="kpi-value">₹{{ total_sales|floatformat:0 }}</div>
+ </div>
+ </div>
+ <div class="col-xl-3 col-md-6">
+ <div class="kpi-card">
+ <div class="d-flex align-items-start justify-content-between mb-3">
+ <div class="kpi-icon info"><i class="bi bi-cart3"></i></div>
+ <span class="kpi-trend down"><i class="bi bi-caret-down-fill"></i> 8%</span>
+ </div>
+ <div class="kpi-label">Purchases</div>
+ <div class="kpi-value">₹{{ total_purchases|floatformat:0 }}</div>
+ </div>
+ </div>
+ <div class="col-xl-3 col-md-6">
+ <div class="kpi-card">
+ <div class="d-flex align-items-start justify-content-between mb-3">
+ <div class="kpi-icon danger"><i class="bi bi-exclamation-triangle"></i></div>
+ </div>
+ <div class="kpi-label">Receivables</div>
+ <div class="kpi-value" style="color:var(--color-danger);">₹{{ total_receivables|floatformat:0 }}</div>
+ </div>
+ </div>
+ <div class="col-xl-3 col-md-6">
+ <div class="kpi-card">
+ <div class="d-flex align-items-start justify-content-between mb-3">
+ <div class="kpi-icon warning"><i class="bi bi-box-seam"></i></div>
+ {% if low_stock_count > 0 %}
+ <span class="badge-status danger">{{ low_stock_count }} low</span>
+ {% endif %}
+ </div>
+ <div class="kpi-label">Products</div>
+ <div class="kpi-value">{{ total_products }}</div>
+ </div>
+ </div>
+ </div>
 
-        <div class="d-flex gap-2">
-            <a href="{% url 'invoices:create' %}" class="btn btn-sm btn-primary">New Invoice</a>
-            <a href="{% url 'purchases:create' %}" class="btn btn-sm btn-outline-secondary">New Purchase</a>
-        </div>
-    </div>
+ <!-- Charts Row -->
+ <div class="row g-3 mb-4">
+ <!-- Revenue Chart -->
+ <div class="col-lg-8">
+ <div class="glass-card h-100">
+ <div class="d-flex justify-content-between align-items-center mb-4">
+ <h6 style="font-weight:700;margin:0;font-size:0.9375rem;">Revenue Overview</h6>
+ <span class="extra-small" style="color:var(--text-muted);">Last 6 months</span>
+ </div>
+ <div style="height:300px;">
+ <canvas id="revenueChart"></canvas>
+ </div>
+ </div>
+ </div>
 
+ <!-- Alerts Panel -->
+ <div class="col-lg-4">
+ <div class="glass-card h-100 p-0 overflow-hidden">
+ <div class="d-flex align-items-center justify-content-between p-3"
+ style="border-bottom:1px solid var(--border-primary);">
+ <h6 style="font-weight:700;margin:0;font-size:0.9375rem;">Overdue Alerts</h6>
+ <span class="badge-status danger">{{ overdue_invoices|length }}</span>
+ </div>
+ <div class="p-3">
+ {% if overdue_invoices %}
+ <div class="d-flex flex-column gap-2">
+ {% for inv in overdue_invoices|slice:":5" %}
+ <a href="{% url 'invoices:detail' inv.id %}"
+ class="d-flex justify-content-between align-items-center p-2 hover-highlight text-decoration-none"
+ style="border-radius:var(--radius-sm);">
+ <div>
+ <div style="font-weight:600;font-size:0.8125rem;color:var(--color-danger);">{{ inv.invoice_number }}</div>
+ <div style="font-size:0.7rem;color:var(--text-muted);">{{ inv.customer.name }}</div>
+ </div>
+ <div class="text-end">
+ <div style="font-weight:700;font-size:0.8125rem;color:var(--text-primary);">₹{{ inv.balance_amount|floatformat:0 }}</div>
+ <div style="font-size:0.65rem;color:var(--text-muted);">Overdue</div>
+ </div>
+ </a>
+ {% endfor %}
+ </div>
+ {% else %}
+ <div class="text-center py-4">
+ <i class="bi bi-check-circle-fill"
+ style="font-size:2rem;color:var(--color-success);opacity:0.3;"></i>
+ <p style="color:var(--text-muted);font-size:0.8125rem;margin-top:0.75rem;">All clear! No overdue
+ invoices.</p>
+ </div>
+ {% endif %}
+ </div>
+ </div>
+ </div>
+ </div>
 
-    <!-- 🔴 OUTSTANDING RECEIVABLES -->
-    {% if overdue_invoices %}
-    <div class="card border-danger mb-3">
-        <div class="card-header bg-danger-subtle text-danger fw-semibold">
-            Outstanding Receivables (Overdue)
-        </div>
+ <!-- Transaction Tables -->
+ <div class="row g-3">
+ <!-- Recent Sales -->
+ <div class="col-md-6">
+ <div class="data-table-wrapper">
+ <div class="data-table-header">
+ <h6 style="margin:0;">Recent Sales</h6>
+ <a href="{% url 'invoices:list' %}" class="sap-btn sap-btn-outline"
+ style="padding:0.3rem 0.75rem;font-size:0.7rem;">
+ View All
+ </a>
+ </div>
+ <div class="table-responsive">
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th>Invoice</th>
+ <th>Customer</th>
+ <th class="text-end">Amount</th>
+ <th class="text-center">Status</th>
+ </tr>
+ </thead>
+ <tbody>
+ {% for sale in recent_sales %}
+ <tr>
+ <td style="font-weight:600;color:var(--accent-solid);">{{ sale.invoice_number }}</td>
+ <td>{{ sale.customer.name }}</td>
+ <td class="text-end" style="font-weight:600;">₹{{ sale.grand_total|floatformat:0 }}</td>
+ <td class="text-center">
+ <span
+ class="badge-status {% if sale.status == 'PAID' %}success{% elif sale.status == 'PARTIAL' %}warning{% else %}danger{% endif %}">
+ {{ sale.get_status_display }}
+ </span>
+ </td>
+ </tr>
+ {% empty %}
+ <tr>
+ <td colspan="4" class="text-center py-4" style="color:var(--text-muted);">No recent
+ sales</td>
+ </tr>
+ {% endfor %}
+ </tbody>
+ </table>
+ </div>
+ </div>
+ </div>
 
-        <div class="table-responsive">
-            <table class="table table-sm align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-3">Invoice</th>
-                        <th>Customer</th>
-                        <th>Due Date</th>
-                        <th class="text-end">Amount</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for inv in overdue_invoices %}
-                    <tr>
-                        <td class="ps-3 fw-semibold">{{ inv.invoice_number }}</td>
-                        <td>{{ inv.customer.name }}</td>
-                        <td class="text-danger">{{ inv.calculated_due_date }}</td>
-                        <td class="text-end fw-semibold">₹ {{ inv.balance_amount|floatformat:2 }}</td>
-                        <td class="text-end">
-                            <a href="{% url 'invoices:detail' inv.id %}" class="btn btn-sm btn-outline-danger">
-                                Open
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    {% endif %}
-
-
-    <!-- PRIMARY STATUS AREA -->
-    <div class="row g-3 mb-3">
-
-        <!-- FINANCIAL POSITION -->
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-header">Financial Position</div>
-                <div class="card-body">
-
-                    <div class="row text-center">
-
-                        <div class="col-6 border-end">
-                            <div class="text-muted small">Sales</div>
-                            <div class="fs-5 fw-bold">₹ {{ total_sales|floatformat:2 }}</div>
-                        </div>
-
-                        <div class="col-6">
-                            <div class="text-muted small">Purchases</div>
-                            <div class="fs-5 fw-bold">₹ {{ total_purchases|floatformat:2 }}</div>
-                        </div>
-
-                        <div class="col-6 mt-3 border-end">
-                            <div class="text-muted small">Receivable</div>
-                            <div class="fw-semibold text-danger">₹ {{ total_receivables|floatformat:2 }}</div>
-                        </div>
-
-                        <div class="col-6 mt-3">
-                            <div class="text-muted small">Payable</div>
-                            <div class="fw-semibold text-danger">₹ {{ total_payables|floatformat:2 }}</div>
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-
-        <!-- INVENTORY POSITION -->
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-header">Inventory Position</div>
-                <div class="card-body text-center">
-
-                    <div class="row">
-
-                        <div class="col-6 border-end">
-                            <div class="text-muted small">Total Items</div>
-                            <div class="fs-5 fw-bold">{{ total_products }}</div>
-                        </div>
-
-                        <div class="col-6">
-                            <div class="text-muted small">Low Stock</div>
-                            <div class="fs-5 fw-bold text-warning">{{ low_stock_count }}</div>
-                        </div>
-
-                    </div>
-
-                    <div class="mt-3">
-                        <a href="{% url 'products:list' %}" class="btn btn-sm btn-outline-secondary">
-                            Open Inventory Register
-                        </a>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-
-    <!-- ACTIVITY REGISTERS -->
-    <div class="row g-3">
-
-        <!-- SALES REGISTER -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between">
-                    <span>Sales Register</span>
-                    <a href="{% url 'invoices:list' %}" class="small text-decoration-none">Open</a>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th class="ps-3">Invoice</th>
-                                <th>Customer</th>
-                                <th class="text-end">Amount</th>
-                                <th class="text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for sale in recent_sales %}
-                            <tr>
-                                <td class="ps-3">
-                                    <a href="{% url 'invoices:detail' sale.id %}"
-                                        class="text-decoration-none fw-semibold">
-                                        {{ sale.invoice_number }}
-                                    </a>
-                                </td>
-                                <td>{{ sale.customer.name }}</td>
-                                <td class="text-end">₹ {{ sale.grand_total|floatformat:2 }}</td>
-                                <td class="text-center">
-                                    <span class="badge
-                                        {% if sale.status == 'PAID' %}bg-success
-                                        {% elif sale.status == 'PARTIAL' %}bg-warning text-dark
-                                        {% else %}bg-danger{% endif %}">
-                                        {{ sale.get_status_display }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-3">No entries</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- PURCHASE REGISTER -->
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between">
-                    <span>Purchase Register</span>
-                    <a href="{% url 'purchases:list' %}" class="small text-decoration-none">Open</a>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th class="ps-3">Purchase</th>
-                                <th>Vendor</th>
-                                <th class="text-end">Amount</th>
-                                <th class="text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for purchase in recent_purchases %}
-                            <tr>
-                                <td class="ps-3">
-                                    <a href="{% url 'purchases:detail' purchase.id %}"
-                                        class="text-decoration-none fw-semibold">
-                                        {{ purchase.purchase_number }}
-                                    </a>
-                                </td>
-                                <td>{{ purchase.vendor.name }}</td>
-                                <td class="text-end">₹ {{ purchase.grand_total|floatformat:2 }}</td>
-                                <td class="text-center">
-                                    <span class="badge
-                                        {% if purchase.status == 'PAID' %}bg-success
-                                        {% elif purchase.status == 'PARTIAL' %}bg-warning text-dark
-                                        {% else %}bg-danger{% endif %}">
-                                        {{ purchase.get_status_display }}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center text-muted py-3">No entries</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-    </div>
+ <!-- Recent Purchases -->
+ <div class="col-md-6">
+ <div class="data-table-wrapper">
+ <div class="data-table-header">
+ <h6 style="margin:0;">Recent Purchases</h6>
+ <a href="{% url 'purchases:list' %}" class="sap-btn sap-btn-outline"
+ style="padding:0.3rem 0.75rem;font-size:0.7rem;">
+ View All
+ </a>
+ </div>
+ <div class="table-responsive">
+ <table class="data-table">
+ <thead>
+ <tr>
+ <th>Order #</th>
+ <th>Vendor</th>
+ <th class="text-end">Amount</th>
+ <th class="text-center">Status</th>
+ </tr>
+ </thead>
+ <tbody>
+ {% for p in recent_purchases %}
+ <tr>
+ <td style="font-weight:600;color:var(--accent-solid);">{{ p.purchase_number }}</td>
+ <td>{{ p.vendor.name }}</td>
+ <td class="text-end" style="font-weight:600;">₹{{ p.grand_total|floatformat:0 }}</td>
+ <td class="text-center">
+ <span
+ class="badge-status {% if p.status == 'PAID' %}success{% elif p.status == 'PARTIAL' %}warning{% else %}danger{% endif %}">
+ {{ p.get_status_display }}
+ </span>
+ </td>
+ </tr>
+ {% empty %}
+ <tr>
+ <td colspan="4" class="text-center py-4" style="color:var(--text-muted);">No recent
+ purchases</td>
+ </tr>
+ {% endfor %}
+ </tbody>
+ </table>
+ </div>
+ </div>
+ </div>
+ </div>
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+ // Revenue Line Chart
+ const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+ const gradient = revenueCtx.createLinearGradient(0, 0, 0, 300);
+ gradient.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
+ gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+ new Chart(revenueCtx, {
+ type: 'line',
+ data: {
+ labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+ datasets: [{
+ label: 'Revenue',
+ data: [120, 190, 150, 250, 220, 300],
+ borderColor: '#818cf8',
+ backgroundColor: gradient,
+ borderWidth: 2.5,
+ tension: 0.4,
+ fill: true,
+ pointRadius: 4,
+ pointBackgroundColor: '#818cf8',
+ pointBorderColor: 'rgba(15, 17, 23, 1)',
+ pointBorderWidth: 2,
+ pointHoverRadius: 6
+ }]
+ },
+ options: {
+ responsive: true,
+ maintainAspectRatio: false,
+ plugins: {
+ legend: { display: false },
+ tooltip: {
+ backgroundColor: '#1e293b',
+ titleColor: '#f1f5f9',
+ bodyColor: '#94a3b8',
+ borderColor: 'rgba(255,255,255,0.1)',
+ borderWidth: 1,
+ cornerRadius: 8,
+ padding: 12,
+ displayColors: false,
+ callbacks: {
+ label: ctx => '₹ ' + ctx.parsed.y + 'K'
+ }
+ }
+ },
+ scales: {
+ y: {
+ grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+ ticks: { color: '#64748b', font: { size: 11, family: 'Inter' } },
+ border: { display: false }
+ },
+ x: {
+ grid: { display: false },
+ ticks: { color: '#64748b', font: { size: 11, family: 'Inter' } },
+ border: { display: false }
+ }
+ }
+ }
+ });
+</script>
 {% endblock %}

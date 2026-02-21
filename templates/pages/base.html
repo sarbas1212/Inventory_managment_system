@@ -5,318 +5,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}InventoryPro ERP{% endblock %}</title>
+    <meta name="description" content="InventoryPro — Modern inventory management for growing businesses.">
+    <title>{% block title %}InventoryPro — Smart Inventory Management{% endblock %}</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-    <style>
-        :root {
-            --bg-light: #f8f9fa;
-            --card-bg: #ffffff;
-            --accent: #0d6efd;
-            --accent-hover: #0b5ed7;
-            --text-dark: #1f2937;
-            --text-muted: #6c757d;
-            --card-radius: 12px;
-            --transition: 0.35s;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
-            margin: 0;
-        }
-
-        /* Navbar */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background: #fff;
-            border-bottom: 1px solid #dee2e6;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            transition: background var(--transition);
-        }
-
-        .navbar .logo a {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        .nav-links {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links li a {
-            color: var(--text-dark);
-            font-weight: 500;
-            padding: 6px 14px;
-            border-radius: 8px;
-            transition: var(--transition);
-        }
-
-        .nav-links li a:hover,
-        .nav-links li a.active {
-            background: var(--accent);
-            color: #fff;
-        }
-
-        main.container {
-            max-width: 1200px;
-            margin: 50px auto;
-        }
-
-        /* Hero */
-        .hero {
-            text-align: center;
-            padding: 100px 20px;
-            background: linear-gradient(135deg, #ffffff, #f1f5f9);
-            border-radius: var(--card-radius);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
-            margin-bottom: 60px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--accent);
-            margin-bottom: 20px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s forwards 0.2s;
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            color: var(--text-dark);
-            margin-bottom: 30px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s forwards 0.4s;
-        }
-
-        .btn-accent {
-            background: var(--accent);
-            color: #fff;
-            font-weight: 600;
-            padding: 12px 30px;
-            border-radius: 10px;
-            transition: 0.3s;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 1s forwards 0.6s;
-        }
-
-        .btn-accent:hover {
-            background: var(--accent-hover);
-        }
-
-        /* Feature Cards */
-        .feature-card {
-            background: var(--card-bg);
-            border-radius: var(--card-radius);
-            padding: 35px 20px;
-            text-align: center;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-            transition: transform var(--transition), box-shadow var(--transition);
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-card i {
-            font-size: 45px;
-            color: var(--accent);
-            margin-bottom: 15px;
-        }
-
-        .feature-card h5 {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .feature-card p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        /* KPI Cards */
-        .kpi-card {
-            background: var(--card-bg);
-            border-radius: var(--card-radius);
-            padding: 25px 20px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            transition: transform var(--transition), box-shadow var(--transition);
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .kpi-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-        }
-
-        .kpi-card h5 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .kpi-card p {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--accent);
-        }
-
-        /* CTA Section */
-        .cta-section {
-            text-align: center;
-            margin-top: 60px;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        /* Footer */
-        footer {
-            background: #fff;
-            text-align: center;
-            padding: 50px 20px;
-            color: var(--text-muted);
-            border-top: 1px solid #dee2e6;
-            margin-top: 50px;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Responsive */
-        @media (max-width:768px) {
-            .nav-links {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
-            }
-        }
-    </style>
+    <!-- Design System -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
 
 <body>
-    <!-- Navbar -->
-    <header>
-        <nav class="navbar">
-            <div class="logo">
-                <a href="{% url 'pages:home' %}">InventoryPro</a>
-            </div>
-            <ul class="nav-links">
-                <li><a href="{% url 'pages:home' %}"
-                        class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
-                <li><a href="{% url 'pages:about' %}"
-                        class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a></li>
-                <li><a href="{% url 'pages:contact' %}"
-                        class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a></li>
-                {% if user.is_authenticated %}
-                <li><a href="{% url 'dashboard:dashboard' %}">Dashboard</a></li>
-                <li><a href="{% url 'pages:logout' %}">Logout</a></li>
-                {% else %}
-                <li><a href="{% url 'pages:login' %}">Login</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
 
-    <!-- Main Content -->
-    <main class="container">
+    <!-- Public Navigation -->
+    <nav class="public-nav">
+        <a class="public-nav-brand" href="{% url 'pages:home' %}">
+            <div class="sidebar-brand-icon" style="width:32px; height:32px; font-size:0.9rem;">
+                <i class="bi bi-box-seam-fill"></i>
+            </div>
+            <span class="sidebar-brand-text" style="font-size:1rem;">InventoryPro</span>
+        </a>
+
+        <div class="d-flex align-items-center gap-2">
+            <div class="public-nav-links d-none d-md-flex">
+                <a href="{% url 'pages:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a>
+                <a href="{% url 'pages:about' %}">About</a>
+                <a href="{% url 'pages:contact' %}">Contact</a>
+            </div>
+
+            <button class="topbar-btn" id="theme-toggle" title="Toggle theme">
+                <i class="bi bi-sun-fill"></i>
+            </button>
+
+            {% if user.is_authenticated %}
+            <a href="{% url 'dashboard:dashboard' %}" class="btn-primary-gradient ms-2">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
+            </a>
+            {% else %}
+            <a href="{% url 'pages:login' %}" class="btn-primary-gradient ms-2">
+                <i class="bi bi-box-arrow-in-right"></i> Sign In
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main>
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer>
-        <p>&copy; {{ now|date:"Y" }} InventoryPro. All rights reserved.</p>
+    <footer class="public-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="footer-brand">
+                        <div class="footer-brand-icon"><i class="bi bi-box-seam-fill"></i></div>
+                        <span style="font-weight:700; font-size:1rem; color:var(--text-primary);">InventoryPro</span>
+                    </div>
+                    <p class="text-secondary-custom" style="font-size:0.8125rem; max-width:280px;">
+                        Modern inventory management built for teams that want to move fast and stay in control.
+                    </p>
+                </div>
+                <div class="col-6 col-lg-2 footer-links">
+                    <h6>Product</h6>
+                    <a href="#">Features</a>
+                    <a href="#">Pricing</a>
+                    <a href="#">Integrations</a>
+                    <a href="#">Changelog</a>
+                </div>
+                <div class="col-6 col-lg-2 footer-links">
+                    <h6>Company</h6>
+                    <a href="{% url 'pages:about' %}">About</a>
+                    <a href="{% url 'pages:contact' %}">Contact</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="col-6 col-lg-2 footer-links">
+                    <h6>Legal</h6>
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Security</a>
+                </div>
+                <div class="col-6 col-lg-2 footer-links">
+                    <h6>Support</h6>
+                    <a href="#">Help Center</a>
+                    <a href="#">Documentation</a>
+                    <a href="#">API Reference</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span style="font-size:0.75rem; color:var(--text-muted);">&copy; 2026 InventoryPro. All rights reserved.</span>
+                <div class="d-flex gap-3">
+                    <a href="#" style="color:var(--text-muted);"><i class="bi bi-github"></i></a>
+                    <a href="#" style="color:var(--text-muted);"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" style="color:var(--text-muted);"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
     </footer>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Animate KPIs & fade-in -->
-    <script>
-        function animateCount(element, target) {
-            let count = 0;
-            const increment = target / 100;
-            const interval = setInterval(() => {
-                count += increment;
-                element.innerText = Math.floor(count);
-                if (count >= target) {
-                    element.innerText = target;
-                    clearInterval(interval);
-                }
-            }, 15);
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            // KPI counters
-            document.querySelectorAll('.kpi-card p').forEach(card => {
-                const target = parseInt(card.getAttribute('data-target')) || parseInt(card.innerText);
-                card.innerText = 0;
-                animateCount(card, target);
-            });
-
-            // Feature cards fade-in on scroll
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = 1;
-                        entry.target.style.transform = 'translateY(0)';
-                        entry.target.style.transition = 'all 0.6s ease-out';
-                    }
-                });
-            }, { threshold: 0.3 });
-
-            document.querySelectorAll('.feature-card, .kpi-card, .cta-section').forEach(el => {
-                observer.observe(el);
-            });
-
-            // CTA fade-in
-            const cta = document.querySelector('.cta-section');
-            cta.style.opacity = 1;
-            cta.style.transform = 'translateY(0)';
-            cta.style.transition = 'all 0.8s ease-out 0.2s';
-        });
-    </script>
+    <script src="{% static 'js/app.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 

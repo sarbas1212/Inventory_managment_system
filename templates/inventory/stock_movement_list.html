@@ -1,95 +1,94 @@
 {% extends "base/base.html" %}
+{% block title %}Stock Audit Trail - InventoryPro{% endblock %}
+{% block page_title %}Logistics & Warehousing{% endblock %}
+{% block page_title_inner %}Material Movement Audit Trail{% endblock %}
+
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h3 class="fw-bold mb-1">Stock Movement History</h3>
-            <p class="text-secondary small mb-0">Detailed log of all inventory changes including sales, purchases, and
-                manual adjustments.</p>
+<div class="sap-animate">
+    <!-- Header / Logic -->
+    <div class="sap-tile mb-3 p-3 bg-black bg-opacity-10">
+        <div class="row align-items-center g-3">
+            <div class="col-md-6">
+                <div class="small text-black italic">Historical log of material transformations and stock level
+                    adjustments.</div>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="{% url 'inventory:stock_list' %}" class="sap-btn sap-btn-outline extra-small">
+                    <i class="bi bi-arrow-left me-1"></i> Return to Stock Ledger
+                </a>
+            </div>
         </div>
-        <a href="{% url 'inventory:stock_list' %}" class="btn btn-outline-dark shadow-sm">
-            <i class="bi bi-arrow-left me-1"></i> Back to Stock
-        </a>
     </div>
 
-    <!-- Table -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary small text-uppercase border-bottom">
-                        <tr>
-                            <th class="ps-4">Date & Time</th>
-                            <th>Product</th>
-                            <th class="text-center">Type</th>
-                            <th class="text-center">Quantity</th>
-                            <th>Reference / Remarks</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for move in page_obj %}
-                        <tr>
-                            <td class="ps-4">
-                                <div class="fw-bold">{{ move.created_at|date:"d M Y" }}</div>
-                                <small class="text-muted">{{ move.created_at|date:"h:i A" }}</small>
-                            </td>
-                            <td>
-                                <div class="fw-bold">{{ move.product.name }}</div>
-                                <small class="text-muted">SKU: {{ move.product.sku }}</small>
-                            </td>
-                            <td class="text-center">
-                                <span
-                                    class="badge {% if move.movement_type == 'SALE' or move.movement_type == 'DAMAGE' %}bg-danger bg-opacity-10 text-danger{% elif move.movement_type == 'PURCHASE' or move.movement_type == 'OPENING' %}bg-success bg-opacity-10 text-success{% else %}bg-info bg-opacity-10 text-info text-dark{% endif %} rounded-pill px-3">
-                                    {{ move.get_movement_type_display }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <h6
-                                    class="mb-0 fw-bold {% if move.quantity < 0 %}text-danger{% else %}text-success{% endif %}">
-                                    {% if move.quantity > 0 %}+{% endif %}{{ move.quantity|floatformat:2 }}
-                                </h6>
-                            </td>
-                            <td>
-                                <div class="small fw-bold text-secondary">{{ move.reference|default:"--" }}</div>
-                                <small class="text-muted">{{ move.remarks|default:"" }}</small>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-5 text-muted">No movements found.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+    <!-- Movement Table -->
+    <div class="sap-tile p-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="sap-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4" style="width: 15%">Timestamp</th>
+                        <th style="width: 30%">Material Identification</th>
+                        <th class="text-center" style="width: 15%">Transaction Category</th>
+                        <th class="text-center" style="width: 15%">Quantity delta</th>
+                        <th style="width: 25%">Reference / Logic</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for move in page_obj %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-bold text-white small">{{ move.created_at|date:"d M Y" }}</div>
+                            <div class="extra-small text-muted">{{ move.created_at|date:"h:i A" }}</div>
+                        </td>
+                        <td>
+                            <div class="small text-white fw-bold">{{ move.product.name }}</div>
+                            <div class="extra-small text-primary fw-bold">{{ move.product.sku }}</div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge py-1 px-3 rounded-1 extra-small border
+ {% if move.movement_type == 'SALE' or move.movement_type == 'DAMAGE' %}border-danger border-opacity-25 bg-danger bg-opacity-10 text-danger
+ {% elif move.movement_type == 'PURCHASE' or move.movement_type == 'OPENING' %}border-success border-opacity-25 bg-success bg-opacity-10 text-success
+ {% else %}border-info border-opacity-25 bg-info bg-opacity-10 text-info{% endif %}">
+                                {{ move.get_movement_type_display|upper }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <h6
+                                class="mb-0 fw-bold {% if move.quantity < 0 %}text-danger{% else %}text-success{% endif %}">
+                                {% if move.quantity > 0 %}+{% endif %}{{ move.quantity|floatformat:2 }}
+                            </h6>
+                        </td>
+                        <td>
+                            <div class="small fw-bold text-secondary">{{ move.reference|default:"--" }}</div>
+                            <div class="extra-small text-muted">{{ move.remarks|default:"" }}</div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="opacity-25 mb-2"><i class="bi bi-clock-history fs-1"></i></div>
+                            <p class="text-muted small">No movement vectors recorded for this period.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
         <!-- Pagination -->
         {% if page_obj.has_other_pages %}
-        <div class="card-footer bg-white border-0 py-3">
-            <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm justify-content-center mb-0">
+        <div class="p-3 border-top border-light border-opacity-10 bg-black bg-opacity-10">
+            <nav>
+                <ul class="pagination pagination-sm justify-content-center mb-0 gap-1">
                     {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i
-                                class="bi bi-chevron-left"></i></a>
-                    </li>
+                    <li class="page-item"><a class="page-link sap-btn sap-btn-outline py-1"
+                            href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
                     {% endif %}
-
-                    {% for i in page_obj.paginator.page_range %}
-                    {% if page_obj.number == i %}
-                    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                    {% else %}
-                    <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-                    {% endif %}
-                    {% endfor %}
-
+                    <li class="page-item disabled"><span
+                            class="page-link py-1 px-3 text-white small bg-transparent border-0">Entries {{ page_obj.start_index }} - {{ page_obj.end_index }}</span></li>
                     {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}"><i
-                                class="bi bi-chevron-right"></i></a>
-                    </li>
+                    <li class="page-item"><a class="page-link sap-btn sap-btn-outline py-1"
+                            href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
                     {% endif %}
                 </ul>
             </nav>
@@ -97,4 +96,22 @@
         {% endif %}
     </div>
 </div>
+
+<style>
+    .bg-black {
+        background-color: #ffffff !important;
+    }
+
+    .extra-small {
+        font-size: 0.65rem;
+    }
+
+    .sap-table td {
+        vertical-align: middle;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+</style>
 {% endblock %}

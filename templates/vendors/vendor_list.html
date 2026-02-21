@@ -1,80 +1,92 @@
 {% extends "base/base.html" %}
+{% block title %}Supplier Enterprise Register - InventoryPro{% endblock %}
+{% block page_title %}Master Data Management{% endblock %}
+{% block page_title_inner %}Supplier Entity Register{% endblock %}
+
 {% block content %}
+<div class="sap-animate">
+    <!-- SaaS Filter Bar -->
+    <div class="sap-filter-bar mb-4">
+        <form method="get" class="d-flex align-items-center flex-grow-1 gap-3">
+            <div class="topbar-search flex-grow-1" style="max-width: 400px;">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" value="{{ query|default:'' }}"
+                    placeholder="Search Suppliers (Name, Phone, Email)..." class="sap-input">
+            </div>
+            <button type="submit" class="sap-btn sap-btn-outline px-3">
+                <i class="bi bi-funnel me-1"></i> Search
+            </button>
+        </form>
 
-<div class="card shadow-sm border-0">
-    <!-- Header -->
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="mb-0 fw-semibold">Vendors</h5>
-            <small class="text-muted">Manage supplier accounts & outstanding balances</small>
+        <div class="d-flex align-items-center gap-2 ms-4">
+            <a href="{% url 'vendors:list' %}" class="btn-ghost px-3 text-decoration-none">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </a>
+            <div class="topbar-divider"></div>
+            <a href="{% url 'vendors:create' %}" class="btn-primary-gradient text-decoration-none">
+                <i class="bi bi-plus-lg me-1"></i> Initialize Supplier Entity
+            </a>
         </div>
-
-        <a href="{% url 'vendors:create' %}" class="btn btn-primary btn-sm px-3">
-            <i class="bi bi-plus-lg me-1"></i> New Vendor
-        </a>
     </div>
 
-    <!-- Table -->
-    <div class="card-body p-0">
+    <!-- Entity Table -->
+    <div class="sap-tile p-0 overflow-hidden">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="text-secondary small text-uppercase">
-                        <th class="ps-4">Vendor</th>
-                        <th>Contact</th>
-                        <th>Email</th>
-                        <th class="text-end">Outstanding</th>
-                        <th class="text-center pe-4" style="width:160px;">Actions</th>
+            <table class="sap-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4" style="width: 30%">Supplier Entity Name</th>
+                        <th style="width: 25%">Contact Reference</th>
+                        <th style="width: 20%">Digital Address</th>
+                        <th class="text-end" style="width: 15%">Payable Balance</th>
+                        <th class="text-center pe-4" style="width: 10%">Maintenance</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     {% for v in vendors %}
                     <tr>
-                        <td class="ps-4 fw-semibold">
+                        <td class="ps-4 fw-bold text-black small">
+                            <i class="bi bi-truck me-2 opacity-50"></i>
                             {{ v.name }}
                         </td>
-
-                        <td>{{ v.phone }}</td>
-
-                        <td>
+                        <td class="small">{{ v.phone }}</td>
+                        <td class="small">
                             {% if v.email %}
                             {{ v.email }}
                             {% else %}
-                            <span class="text-muted">—</span>
+                            <span class="text-muted italic opacity-50">N/A</span>
                             {% endif %}
                         </td>
-
-                        <td class="text-end fw-semibold">
+                        <td class="text-end fw-bold small">
                             {% if v.outstanding_balance > 0 %}
-                            <span class="text-danger">₹ {{ v.outstanding_balance }}</span>
+                            <span class="text-danger">₹ {{ v.outstanding_balance|floatformat:2 }}</span>
                             {% else %}
                             <span class="text-success">₹ 0.00</span>
                             {% endif %}
                         </td>
-
                         <td class="text-center pe-4">
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'vendors:edit' v.id %}" class="btn btn-outline-secondary">
+                            <div class="d-flex justify-content-center gap-1">
+                                <a href="{% url 'vendors:edit' v.id %}"
+                                    class="sap-btn sap-btn-outline p-1 px-2 extra-small" title="Maintain Record">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-
                                 <form method="post" action="{% url 'vendors:delete' v.id %}"
-                                    onsubmit="return confirm('Deactivate this vendor?');">
+                                    onsubmit="return confirm('Deactivate this supplier entity?');">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger">
+                                    <button type="submit"
+                                        class="sap-btn sap-btn-outline p-1 px-2 extra-small text-danger"
+                                        title="Deactivate">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>
                         </td>
                     </tr>
-
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            <i class="bi bi-people fs-3 d-block mb-2"></i>
-                            No vendors found
+                        <td colspan="5" class="text-center py-5">
+                            <div class="opacity-25 mb-2"><i class="bi bi-truck fs-1"></i></div>
+                            <p class="text-muted small">No supplier entities registered in the master record.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -84,4 +96,21 @@
     </div>
 </div>
 
+<style>
+    .bg-black {
+        background-color: #000000 !important;
+    }
+
+    .extra-small {
+        font-size: 0.65rem;
+    }
+
+    .sap-table td {
+        vertical-align: middle;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+</style>
 {% endblock %}

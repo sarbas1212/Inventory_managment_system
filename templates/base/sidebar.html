@@ -1,77 +1,80 @@
-<div class="px-3 pt-4 pb-2">
-    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Main</h6>
-    <ul class="nav flex-column mb-4">
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}"
-                href="{% url 'dashboard:dashboard' %}">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-        </li>
-    </ul>
+<!-- Sidebar Brand -->
+<div class="sidebar-brand">
+    <div class="sidebar-brand-icon">
+        <i class="bi bi-box-seam-fill"></i>
+    </div>
+    <span class="sidebar-brand-text">InventoryPro</span>
+</div>
 
-    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Inventory Management</h6>
-    <ul class="nav flex-column mb-4">
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'products' %}active{% endif %}"
-                href="{% url 'products:list' %}">
-                <i class="bi bi-box-seam"></i> Products
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'inventory' %}active{% endif %}"
-                href="{% url 'inventory:stock_list' %}">
-                <i class="bi bi-stack"></i> Stock Levels
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}"
-                href="{% url 'products:category_list' %}">
-                <i class="bi bi-tags"></i> Categories
-            </a>
-        </li>
-    </ul>
-    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Purchases & Vendors</h6>
-    <ul class="nav flex-column mb-4">
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'purchases' %}active{% endif %}"
-                href="{% url 'purchases:list' %}">
-                <i class="bi bi-cart-check"></i> Purchase Invoices
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'vendors' %}active{% endif %}"
-                href="{% url 'vendors:list' %}">
-                <i class="bi bi-person-badge"></i> Vendors
-            </a>
-        </li>
-    </ul>
+<!-- Navigation -->
+<nav class="sidebar-nav">
 
-    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Sales & Customers</h6>
-    <ul class="nav flex-column mb-4">
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'invoices' %}active{% endif %}"
-                href="{% url 'invoices:list' %}">
-                <i class="bi bi-receipt"></i> Sales Invoices
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'customers' %}active{% endif %}"
-                href="{% url 'customers:list' %}">
-                <i class="bi bi-people"></i> Customers
-            </a>
-        </li>
-    </ul>
+    <div class="sidebar-section-label">Overview</div>
 
-    <h6 class="text-uppercase text-secondary small fw-bold mb-3 px-2">Finance</h6>
-    <ul class="nav flex-column mb-4">
-        <li class="nav-item">
-            <a class="nav-link {% if request.resolver_match.app_name == 'payments' %}active{% endif %}"
-                href="{% url 'payments:list' %}">
-                <i class="bi bi-wallet2"></i> Payments
-            </a>
-        </li>
-        <!-- <li class="nav-item">
-            <a class="nav-link" href="#"><i class="bi bi-journal-text"></i> Ledger</a>
-        </li> -->
-    </ul>
+    <a class="nav-item-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}"
+        href="{% url 'dashboard:dashboard' %}">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Dashboard</span>
+    </a>
+
+    <div class="sidebar-section-label">Inventory</div>
+
+    <a class="nav-item-link {% if request.resolver_match.app_name == 'products' and request.resolver_match.url_name == 'list' %}active{% endif %}"
+        href="{% url 'products:list' %}">
+        <i class="bi bi-box-seam"></i>
+        <span>Products</span>
+    </a>
+    <a class="nav-item-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}"
+        href="{% url 'products:category_list' %}">
+        <i class="bi bi-tags"></i>
+        <span>Categories</span>
+    </a>
+    <a class="nav-item-link {% if request.resolver_match.app_name == 'inventory' %}active{% endif %}"
+        href="{% url 'inventory:stock_list' %}">
+        <i class="bi bi-clipboard-data"></i>
+        <span>Stock Registry</span>
+    </a>
+
+    <div class="sidebar-section-label">Transactions</div>
+
+    <a class="nav-item-link {% if request.resolver_match.app_name == 'purchases' %}active{% endif %}"
+        href="{% url 'purchases:list' %}">
+        <i class="bi bi-cart3"></i>
+        <span>Purchases</span>
+    </a>
+    <a class="nav-item-link {% if request.resolver_match.app_name == 'invoices' %}active{% endif %}"
+        href="{% url 'invoices:list' %}">
+        <i class="bi bi-receipt"></i>
+        <span>Sales & Invoices</span>
+    </a>
+
+    <div class="sidebar-section-label">Contacts</div>
+
+    <a class="nav-item-link {% if request.resolver_match.app_name == 'vendors' %}active{% endif %}"
+        href="{% url 'vendors:list' %}">
+        <i class="bi bi-building"></i>
+        <span>Vendors</span>
+    </a>
+    <a class="nav-item-link {% if request.resolver_match.app_name == 'customers' %}active{% endif %}"
+        href="{% url 'customers:list' %}">
+        <i class="bi bi-people"></i>
+        <span>Customers</span>
+    </a>
+
+    <div class="sidebar-section-label">Finance</div>
+
+    <a class="nav-item-link {% if request.resolver_match.app_name == 'payments' %}active{% endif %}"
+        href="{% url 'payments:list' %}">
+        <i class="bi bi-wallet2"></i>
+        <span>Payments</span>
+    </a>
+
+</nav>
+
+<!-- Sidebar Footer -->
+<div class="sidebar-footer">
+    <button class="sidebar-toggle-btn" id="sidebar-toggle">
+        <i class="bi bi-chevron-bar-left"></i>
+        <span>Collapse</span>
+    </button>
 </div>

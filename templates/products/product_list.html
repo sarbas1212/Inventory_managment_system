@@ -1,70 +1,123 @@
 {% extends "base/base.html" %}
+{% block title %}Product Master Data - InventoryPro{% endblock %}
+{% block page_title %}Product Registry{% endblock %}
+{% block page_title_inner %}Material Master{% endblock %}
 
 {% block content %}
+<div class="sap-animate">
+    <!-- SaaS Filter Bar -->
+    <div class="sap-filter-bar mb-4">
+        <form method="get" class="d-flex align-items-center flex-grow-1 gap-3">
+            <div class="topbar-search flex-grow-1" style="max-width: 400px;">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" value="{{ query|default:'' }}"
+                    placeholder="Search Materials (ID, Name, SKU)..." class="sap-input">
+            </div>
 
-<div class="card shadow-sm border-0">
-    <!-- Header -->
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="mb-0 fw-semibold">Products</h5>
-            <small class="text-muted">Manage inventory items and pricing</small>
+            <div class="sap-filter-group">
+                <span class="sap-filter-label">Group:</span>
+                <select name="category" class="sap-input py-1 px-3" style="width: 180px;">
+                    <option value="">All Commodities</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="sap-btn sap-btn-outline px-3">
+                <i class="bi bi-funnel me-1"></i> Filter
+            </button>
+        </form>
+
+        <div class="d-flex align-items-center gap-2 ms-4">
+            <a href="{% url 'products:list' %}" class="btn-ghost px-3 text-decoration-none">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </a>
+            <div class="topbar-divider"></div>
+            <a href="{% url 'products:category_list' %}" class="sap-btn sap-btn-outline">
+                <i class="bi bi-tag me-1"></i> Categories
+            </a>
+            <a href="{% url 'products:create' %}" class="btn-primary-gradient text-decoration-none">
+                <i class="bi bi-plus-lg me-1"></i> Create Material
+            </a>
         </div>
-
-        <a href="{% url 'products:create' %}" class="btn btn-primary btn-sm px-3">
-            <i class="bi bi-plus-lg me-1"></i> New Product
-        </a>
     </div>
 
-    <!-- Table -->
-    <div class="card-body p-0">
+    <!-- SAP High-Density List Report Table -->
+    <div class="sap-tile p-0 overflow-hidden">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light text-secondary small text-uppercase">
+            <table class="sap-table mb-0">
+                <thead>
                     <tr>
-                        <th class="ps-4">SKU</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th class="text-end">Purchase Price</th>
-                        <th class="text-end">Selling Price</th>
-                        <th>Unit</th>
-                        <th>Reorder Level</th>
-                        <th class="text-center pe-4" style="width:160px;">Actions</th>
+                        <th style="width: 15%; text-align: center;">Material ID (SKU)</th>
+                        <th style="width: 30%">Description</th>
+                        <th style="width: 15%">Commodity Group</th>
+                        <th style="width: 15%" class="text-end">Unit Valuation</th>
+                        <th style="width: 15%" class="text-end">Inventory Balance</th>
+                        <th style="width: 10%" class="text-center">Lifecycle</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for p in products %}
                     <tr>
-                        <td class="ps-4 fw-semibold">{{ p.sku }}</td>
-                        <td>{{ p.name }}</td>
-                        <td>{{ p.category.name|default:"-" }}</td>
-                        <td class="text-end">₹ {{ p.purchase_price }}</td>
-                        <td class="text-end">₹ {{ p.selling_price }}</td>
-                        <td>{{ p.unit }}</td>
-                        <td>{{ p.reorder_level }}</td>
+                        <td class="fw-bold text-primary small">{{ p.sku }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-box-seam text-muted"></i>
+                                <span class="small fw-bold" style="color: var(--text-primary);">{{ p.name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="extra-small text-muted text-uppercase fw-bold">
+                                {% if p.category %}{{ p.category.name }}{% else %}General Material{% endif %}
+                            </span>
+                        </td>
+                        <td class="text-end fw-bold small text-success">₹ {{ p.selling_price|floatformat:2 }}</td>
+                        <td class="text-end">
+                            {% if p.inventory_count != None %}
+                            <span
+                                class="small fw-bold {% if p.inventory_count <= p.reorder_level %}text-warning{% else %}text-white{% endif %}">
+                                {{ p.inventory_count|floatformat:0 }}
+                                <span class="extra-small text-muted">{% if p.unit %}{{ p.unit|upper }}{% else %}PCS{% endif %}</span>
+                            </span>
+                            {% else %}
+                            <span class="small text-muted italic">No Stock Data</span>
+                            {% endif %}
+                        </td>
 
-                        <td class="text-center pe-4">
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'products:edit' p.id %}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-
-                                <form method="post" action="{% url 'products:delete' p.id %}"
-                                    onsubmit="return confirm('Deactivate this product?');">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
+                        <td class="text-center">
+                            <div class="dropdown">
+                                <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown"
+                                    style="font-size: 0.8rem;">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark p-2"
+                                    style="background: var(--sap-surface-color); border: 1px solid var(--sap-border-color);">
+                                    <li><a class="dropdown-item rounded small" href="{% url 'products:edit' p.id %}"><i
+                                                class="bi bi-pencil me-2"></i> Edit Master Record</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider border-secondary opacity-25">
+                                    </li>
+                                    <li>
+                                        <form method="post" action="{% url 'products:delete' p.id %}"
+                                            onsubmit="return confirm('Archive this master record?');">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item rounded small text-danger"><i
+                                                    class="bi bi-archive me-2"></i> Decommission</button>
+                                        </form>
+                                    </li>
+                                </ul>
                             </div>
                         </td>
                     </tr>
-
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">
-                            <i class="bi bi-box-seam fs-3 d-block mb-2"></i>
-                            No products found
+                        <td colspan="6" class="text-center py-5">
+                            <div class="opacity-25 mb-2"><i class="bi bi-folder-x fs-1"></i></div>
+                            <p class="text-muted small">No Material Master records found in the database.</p>
+                            <a href="{% url 'products:create' %}" class="sap-btn sap-btn-outline extra-small">Initialize
+                                Registry</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -74,4 +127,17 @@
     </div>
 </div>
 
+<style>
+    .bg-black {
+        background-color: #000000 !important;
+    }
+
+    .extra-small {
+        font-size: 0.65rem;
+    }
+
+    .sap-table td {
+        vertical-align: middle;
+    }
+</style>
 {% endblock %}
