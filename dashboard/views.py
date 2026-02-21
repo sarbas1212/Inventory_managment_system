@@ -49,7 +49,17 @@ def dashboard(request):
     # ===========================================================================
 
 
+    # Time-of-day greeting
+    hour = now().hour
+    if hour < 12:
+        greeting = "morning"
+    elif hour < 17:
+        greeting = "afternoon"
+    else:
+        greeting = "evening"
+
     context = {
+        "greeting": greeting,
         "total_sales": total_sales,
         "total_receivables": total_receivables,
         "total_purchases": total_purchases,
@@ -58,7 +68,7 @@ def dashboard(request):
         "low_stock_count": low_stock_count,
         "recent_sales": recent_sales,
         "recent_purchases": recent_purchases,
-        "overdue_invoices": overdue_invoices,   # <-- now correctly inside
+        "overdue_invoices": overdue_invoices,
     }
     
     return render(request, "dashboard/dashboard.html", context)

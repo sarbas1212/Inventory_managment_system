@@ -4,7 +4,7 @@
         <div class="d-flex ms-auto">
             {% if user.is_authenticated %}
             <span class="navbar-text text-white me-3">
-                {{ user.username }}
+                {% if user.is_authenticated %}{{ user.username }}{% else %}Guest{% endif %}
             </span>
             <form method="post" action="{% url 'logout' %}" class="d-inline">
                 {% csrf_token %}

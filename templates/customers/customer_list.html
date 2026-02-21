@@ -1,77 +1,94 @@
 {% extends "base/base.html" %}
+{% block title %}Customer Enterprise Register - InventoryPro{% endblock %}
+{% block page_title %}Master Data Management{% endblock %}
+{% block page_title_inner %}Customer Entity Register{% endblock %}
 
 {% block content %}
+<div class="sap-animate">
+    <!-- SaaS Filter Bar -->
+    <div class="sap-filter-bar mb-4">
+        <form method="get" class="d-flex align-items-center flex-grow-1 gap-3">
+            <div class="topbar-search flex-grow-1" style="max-width: 400px;">
+                <i class="bi bi-search"></i>
+                <input type="text" name="q" value="{{ query|default:'' }}"
+                    placeholder="Search Entities (Name, Contact, Email)..." class="sap-input">
+            </div>
+            <button type="submit" class="sap-btn sap-btn-outline px-3">
+                <i class="bi bi-funnel me-1"></i> Search
+            </button>
+        </form>
 
-<div class="card shadow-sm border-0">
-    <!-- Header -->
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="mb-0 fw-semibold">Customers</h5>
-            <small class="text-muted">Manage customer accounts & outstanding balances</small>
+        <div class="d-flex align-items-center gap-2 ms-4">
+            <a href="{% url 'customers:list' %}" class="btn-ghost px-3 text-decoration-none">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </a>
+            <div class="topbar-divider"></div>
+            <a href="{% url 'customers:create' %}" class="btn-primary-gradient text-decoration-none">
+                <i class="bi bi-plus-lg me-1"></i> Initialize Customer Entity
+            </a>
         </div>
-
-        <a href="{% url 'customers:create' %}" class="btn btn-primary btn-sm px-3">
-            <i class="bi bi-plus-lg me-1"></i> New Customer
-        </a>
     </div>
 
-    <!-- Table -->
-    <div class="card-body p-0">
+    <!-- Entity Table -->
+    <div class="sap-tile p-0 overflow-hidden">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr class="text-secondary small text-uppercase">
-                        <th class="ps-4">Customer</th>
-                        <th>Contact</th>
-                        <th>Email</th>
-                        <th class="text-end">Credit Limit</th>
-                        <th class="text-end">Outstanding</th>
-                        <th class="text-center pe-4" style="width:160px;">Actions</th>
+            <table class="sap-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4" style="width: 25%">Legal Entity Name</th>
+                        <th style="width: 20%">Contact Reference</th>
+                        <th style="width: 15%">Digital Address</th>
+                        <th class="text-end" style="width: 15%">Credit Threshold</th>
+                        <th class="text-end" style="width: 15%">Outstanding Bal</th>
+                        <th class="text-center pe-4" style="width: 10%">Maintenance</th>
                     </tr>
                 </thead>
-
                 <tbody>
                     {% for c in customers %}
                     <tr>
-                        <td class="ps-4 fw-semibold">{{ c.name }}</td>
-                        <td>{{ c.phone }}</td>
-                        <td>
+                        <td class="ps-4 fw-bold text-black small">
+                            <i class="bi bi-building me-2 opacity-50"></i>
+                            {{ c.name }}
+                        </td>
+                        <td class="small">{{ c.phone }}</td>
+                        <td class="small">
                             {% if c.email %}
                             {{ c.email }}
                             {% else %}
-                            <span class="text-muted">—</span>
+                            <span class="text-muted italic opacity-50">N/A</span>
                             {% endif %}
                         </td>
-                        <td class="text-end fw-semibold">₹ {{ c.credit_limit }}</td>
-                        <td class="text-end fw-semibold">
+                        <td class="text-end fw-bold small">₹ {{ c.credit_limit|floatformat:2 }}</td>
+                        <td class="text-end fw-bold small">
                             {% if c.outstanding_balance > 0 %}
-                            <span class="text-danger">₹ {{ c.outstanding_balance }}</span>
+                            <span class="text-danger">₹ {{ c.outstanding_balance|floatformat:2 }}</span>
                             {% else %}
                             <span class="text-success">₹ 0.00</span>
                             {% endif %}
                         </td>
                         <td class="text-center pe-4">
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'customers:edit' c.id %}" class="btn btn-outline-secondary">
+                            <div class="d-flex justify-content-center gap-1">
+                                <a href="{% url 'customers:edit' c.id %}"
+                                    class="sap-btn sap-btn-outline p-1 px-2 extra-small" title="Maintain Record">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-
                                 <form method="post" action="{% url 'customers:delete' c.id %}"
-                                    onsubmit="return confirm('Deactivate this customer?');">
+                                    onsubmit="return confirm('Deactivate this customer entity?');">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger">
+                                    <button type="submit"
+                                        class="sap-btn sap-btn-outline p-1 px-2 extra-small text-danger"
+                                        title="Deactivate">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>
                         </td>
                     </tr>
-
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
-                            <i class="bi bi-people fs-3 d-block mb-2"></i>
-                            No customers found
+                        <td colspan="6" class="text-center py-5">
+                            <div class="opacity-25 mb-2"><i class="bi bi-people fs-1"></i></div>
+                            <p class="text-muted small">No customer entities registered in the master record.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -81,4 +98,21 @@
     </div>
 </div>
 
+<style>
+    .bg-black {
+        background-color: #000000 !important;
+    }
+
+    .extra-small {
+        font-size: 0.65rem;
+    }
+
+    .sap-table td {
+        vertical-align: middle;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+</style>
 {% endblock %}

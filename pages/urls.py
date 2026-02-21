@@ -11,7 +11,7 @@ urlpatterns = [
     path('contact/', views.contact, name='contact'),
 
     # Auth
-    path('login/', auth_views.LoginView.as_view(template_name='pages/login.html'), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='pages:home'), name='logout'),
     path('register/', views.register, name='register'),
 ]

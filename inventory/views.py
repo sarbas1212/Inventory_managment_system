@@ -10,7 +10,7 @@ from .services import StockService
 @login_required
 def stock_list(request):
     query = request.GET.get("q", "")
-    stocks = Stock.objects.select_related("product").all().order_by('-id')
+    stocks = Stock.objects.filter(product__is_active=True).select_related("product").order_by('-id')
 
     if query:
         stocks = stocks.filter(

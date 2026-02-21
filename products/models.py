@@ -30,5 +30,13 @@ class Product(TimeStampedModel, SoftDeleteModel):
     unit = models.CharField(max_length=20, default="pcs")
     reorder_level = models.PositiveIntegerField(default=0)
 
+    @property
+    def inventory_count(self):
+        """Safely retrieve stock quantity from related Stock model"""
+        try:
+            return self.stock.quantity
+        except AttributeError:
+            return 0
+
     def __str__(self):
         return f"{self.name} ({self.sku})"
